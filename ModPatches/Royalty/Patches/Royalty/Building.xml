@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--Royalty-->
+<Patch>
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/ThingDef[defName="NatureShrine_Small"]/researchPrerequisites</xpath>
+		<nomatch Class="PatchOperationAdd" MayRequire="OskarPotocki.VFE.Tribals">
+			<xpath>Defs/ThingDef[defName="NatureShrine_Small"]</xpath>
+			<value>
+				<researchPrerequisites>
+					<li>VFET_Construction</li>
+				</researchPrerequisites>
+			</value>
+		</nomatch>
+	</Operation>
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/ThingDef[defName="NatureShrine_Large"]/researchPrerequisites</xpath>
+		<nomatch Class="PatchOperationAdd" MayRequire="OskarPotocki.VFE.Tribals">
+			<xpath>Defs/ThingDef[defName="NatureShrine_Large"]</xpath>
+			<value>
+				<researchPrerequisites>
+					<li>VFET_Construction</li>
+				</researchPrerequisites>
+			</value>
+		</nomatch>
+	</Operation>
+</Patch>

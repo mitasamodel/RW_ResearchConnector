@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--VGP Vegetable Garden-->
+<Patch>
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/ThingDef[defName="VG_JellyFarm"]/researchPrerequisites</xpath>
+		<nomatch Class="PatchOperationAdd" MayRequire="OskarPotocki.VFE.Tribals">
+			<xpath>Defs/ThingDef[defName="VG_JellyFarm"]</xpath>
+			<value>
+				<researchPrerequisites>
+					<li>VFET_Agriculture</li>
+				</researchPrerequisites>
+			</value>
+		</nomatch>
+	</Operation>
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/ThingDef[defName="VG_FishTrap"]/researchPrerequisites</xpath>
+		<nomatch Class="PatchOperationAdd" MayRequire="Ludeon.RimWorld.Odyssey">
+			<xpath>Defs/ThingDef[defName="VG_FishTrap"]</xpath>
+			<value>
+				<researchPrerequisites>
+					<li>Fishing</li>
+				</researchPrerequisites>
+			</value>
+		</nomatch>
+	</Operation>
+</Patch>
