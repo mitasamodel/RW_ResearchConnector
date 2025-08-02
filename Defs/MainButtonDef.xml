@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<Defs>
+  <MainButtonDef>
+    <defName>ResearchConnector</defName>
+    <label>Research connector</label>
+    <description>Research connector</description>
+    <buttonVisible>true</buttonVisible>
+    <!--<tabWindowClass>ResearchConnector.MainTabWindow_Buildings</tabWindowClass>-->
+	<workerClass>ResearchConnector.MainButtonWorker_ResearchConnector</workerClass>
+    <order>999</order>
+	<validWithoutMap>true</validWithoutMap>
+  </MainButtonDef>
+</Defs>

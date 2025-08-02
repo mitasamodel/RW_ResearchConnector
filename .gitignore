@@ -2,3 +2,4 @@ _copy-template.sh
 .vs
 obj/
 bin/
+Source/packages/

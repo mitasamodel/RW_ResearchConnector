@@ -1,0 +1,92 @@
+﻿using LudeonTK;
+using RimWorld;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
+using Verse;
+
+namespace ResearchConnector
+{
+	public class MainButtonWorker_ResearchConnector : MainButtonWorker
+	{
+		public override void Activate()
+		{
+			if (Find.WindowStack.WindowOfType<Window_ResearchConnector>() != null)
+				Find.WindowStack.TryRemove(typeof(Window_ResearchConnector));
+			else
+				Find.WindowStack.Add(new Window_ResearchConnector());
+		}
+	}
+
+	public class Window_ResearchConnector : Window
+	{
+		public override Vector2 InitialSize => new Vector2(600f, 500f);
+
+		public Window_ResearchConnector()
+		{
+			//Placement and drawing order
+			layer = WindowLayer.Dialog;     //on top of all
+			draggable = true;
+			resizeable = true;
+
+			optionalTitle = "This is optional title";
+			doCloseX = true;            // show the X button
+			doCloseButton = false;      // no bottom "Close" button
+			closeOnAccept = false;      // don't close on <Enter>
+			closeOnCancel = false;      // don't close on <Esc>
+			openMenuOnCancel = true;    // open game menu on <Esc>
+			closeOnClickedOutside = false;   // don’t close when clicking outside
+
+			forcePause = false;          // pause if in the window
+
+			preventCameraMotion = false;
+			absorbInputAroundWindow = false; // allow interaction with game world
+			forceCatchAcceptAndCancelEventEvenIfUnfocused = false;      //don't react to <Enter> or <Esc> if not in focus
+
+			preventDrawTutor = false;       //prevents drawing tutorial
+			doWindowBackground = true;      //standard Rimworld window background
+			drawShadow = true;
+			shadowAlpha = 1f;       //transparency of the shadow
+			focusWhenOpened = true;
+			onlyOneOfTypeAllowed = true;        //only 1 this window type can be opened
+			grayOutIfOtherDialogOpen = false;
+			drawInScreenshotMode = true;
+			onlyDrawInDevMode = false;
+		}
+
+		[TweakValue("exampleTweak", 0f, 200f)]
+		static float testValue = 100f;
+
+		private string selectedModId = null;
+		private string selectedModName = "Select mod";
+		private Vector2 scrollPosition = Vector2.zero;
+
+		public override void DoWindowContents(Rect inRect)
+		{
+			Widgets.Label(new Rect(0, 0, inRect.width, 30f), "All Colony Buildings will go here!");
+			Widgets.Label(new Rect(0, 30f, 100f, 30f), testValue.ToString());
+
+			if (Widgets.ButtonText(new Rect(0, 60f, 200f, 40f), selectedModName.ToString()))
+			{
+				Find.WindowStack.Add(new Dialog_ModSelector
+					(
+						(modId,modName) =>
+						{
+							selectedModId = modId;
+							selectedModName = modName;
+						},
+						scrollPosition,
+						newScroll =>
+						{
+							scrollPosition = newScroll;
+						}
+					)
+				);
+			}
+		}
+
+	}
+}
