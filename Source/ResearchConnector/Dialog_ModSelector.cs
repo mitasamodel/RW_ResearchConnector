@@ -18,7 +18,7 @@ namespace ResearchConnector
 		static float rowHeight = 22f;
 		const float scrollWidth = 16f;
 
-		//"Action" or "delegate" is basically a pointer to a function (in C).
+		// "Action" or "delegate" is basically a pointer to a function (in C).
 		private readonly Action<string, string> _onSelect;		// Execute Method passed from Caller, provide selected modId and modName
 		private readonly Action<Vector2> _onCloseSave;			// Same, but save scroll position outside (to be re-used after re-oppening)
 		private Vector2 _scrollPosition = Vector2.zero;         // Default
@@ -37,23 +37,32 @@ namespace ResearchConnector
 			_onCloseSave = scrollBack;
 		}
 
+		string searchString;
+
 		public override void DoWindowContents(Rect inRect)
 		{
-			//var mods = LoadedModManager.RunningModsListForReading.OrderBy(mod => mod.Name).ToList();
+			Rect windowRect = new Rect(0f, 0f, inRect.width, inRect.height);
+
+			// Search field for a mod
+			Rect searchRect = new Rect(0f, 0f, windowRect.width, rowHeight);
+			searchString = Widgets.TextField(searchRect, searchString);
+
+			// Mods and filtering
 			var mods = LoadedModManager.RunningModsListForReading
-				.Select(m => (m.PackageId, m.Name))
-				.OrderBy(m => m.Name)
+				.Select(mod => (mod.PackageId, mod.Name))
+				.Where(mod => 
+					string.IsNullOrEmpty(searchString) || 
+					mod.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase) || 
+					mod.PackageId.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				.OrderBy(mod => mod.Name)
 				.ToList();
+			mods.Insert(0, (null, "=All mods="));	// Dummy mod on top - used for "all mods" option
 
-			mods.Insert(0, ("allModsFakeId", "=All mods="));
-
+			//Scrollable area
 			float contentHeight = mods.Count * rowHeight;
-
-			Rect contentRect = new Rect(0f, 0f, inRect.width - scrollWidth, contentHeight);
-			Rect visibleRect = new Rect(0f, 0f, inRect.width, inRect.height);
-
-			Widgets.BeginScrollView(visibleRect, ref _scrollPosition, contentRect, true);
-
+			Rect positionRect = new Rect(0f, searchRect.height, windowRect.width, windowRect.height - searchRect.height);	// Where scroll area located
+			Rect contentRect = new Rect(0f, 0f, positionRect.width - scrollWidth, contentHeight);		//The content inside scroll area. Coordinates are separate
+			Widgets.BeginScrollView(positionRect, ref _scrollPosition, contentRect, true);
 			float curY = 0f;
 			foreach (var mod in mods)
 			{
@@ -62,13 +71,12 @@ namespace ResearchConnector
 				Widgets.Label(rowRect, mod.Name);
 				if (Widgets.ButtonInvisible(rowRect))
 				{
-					_onSelect?.Invoke(mod.PackageId, mod.Name);
+					_onSelect?.Invoke(mod.PackageId, mod.Name);		// Invoke - call a Method (which is stored in _onSelect)
 					Close();
 				}
 
 				curY += rowHeight;
 			}
-
 			Widgets.EndScrollView();
 		}
 
