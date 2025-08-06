@@ -48,15 +48,12 @@ namespace ResearchConnector
 			searchString = Widgets.TextField(searchRect, searchString);
 
 			// Mods and filtering
-			var mods = LoadedModManager.RunningModsListForReading
-				.Select(mod => (mod.PackageId, mod.Name))
-				.Where(mod => 
-					string.IsNullOrEmpty(searchString) || 
-					mod.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase) || 
+			var mods = ResearchConnector.Mods
+				.Where(mod =>
+					string.IsNullOrEmpty(searchString) ||
+					mod.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
 					mod.PackageId.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-				.OrderBy(mod => mod.Name)
 				.ToList();
-			mods.Insert(0, (null, "=All mods="));	// Dummy mod on top - used for "all mods" option
 
 			//Scrollable area
 			float contentHeight = mods.Count * rowHeight;

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
+using Verse.Noise;
 
 namespace ResearchConnector
 {
@@ -57,36 +58,41 @@ namespace ResearchConnector
 			onlyDrawInDevMode = false;
 		}
 
-		[TweakValue("exampleTweak", 0f, 200f)]
-		static float testValue = 100f;
-
 		private string selectedModId = null;
-		private string selectedModName = "Select mod";
-		private Vector2 scrollPosition = Vector2.zero;
+		private string selectedModName = null;
+		private Vector2 scrollPositionModSelect = Vector2.zero;
+
+		[TweakValue("0_MY", 10f, 40f)]
+		const float rowHeight = 22f;
+		[TweakValue("0_MY", 50, 150)]
+		const float labelsWidth1 = 80f;
 
 		public override void DoWindowContents(Rect inRect)
 		{
-			Widgets.Label(new Rect(0, 0, inRect.width, 30f), "All Colony Buildings will go here!");
-			Widgets.Label(new Rect(0, 30f, 100f, 30f), testValue.ToString());
+			float curY = 0f;
 
-			if (Widgets.ButtonText(new Rect(0, 60f, 200f, 40f), selectedModName.ToString()))
-			{
-				Find.WindowStack.Add(new Dialog_ModSelector
+			// Mod selection
+			GUI_Utils.LabelWithSelection(inRect, curY, "Mod:", selectedModName, "Select mod",
+				new Dialog_ModSelector
 					(
-						(modId,modName) =>
+						(modId, modName) =>
 						{
 							selectedModId = modId;
 							selectedModName = modName;
 						},
-						scrollPosition,
+						scrollPositionModSelect,
 						newScroll =>
 						{
-							scrollPosition = newScroll;
+							scrollPositionModSelect = newScroll;
 						}
 					)
 				);
-			}
+			curY += GUI_Utils.rowHeight;
+
+			// Item selection
+
 		}
 
+		
 	}
 }

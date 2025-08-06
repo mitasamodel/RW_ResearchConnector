@@ -59,8 +59,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dialog_ModSelector.cs" />
+    <Compile Include="GUI_Utils.cs" />
     <Compile Include="MainTabWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResearchConnector.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

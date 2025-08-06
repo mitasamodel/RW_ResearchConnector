@@ -19,5 +19,12 @@ namespace ResearchConnector
 		{
 			return source?.IndexOf(toCheck, comp) >= 0;
 		}
+
+		public static void Log(string str)
+		{
+#if DEBUG
+			Verse.Log.Message("[ResearchConnector] " + str);
+#endif
+		}
 	}
 }
