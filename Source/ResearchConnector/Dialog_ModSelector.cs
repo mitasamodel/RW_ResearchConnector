@@ -91,8 +91,8 @@ namespace ResearchConnector
 				filteredList = ResearchConnector.Mods
 				.Where(mod =>
 					string.IsNullOrEmpty(searchString) ||
-					mod.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-					mod.PackageId.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+					mod.Name.ContainsIgnoreCase(searchString) ||
+					mod.PackageId.ContainsIgnoreCase(searchString))
 				.ToList();
 			}
 		}

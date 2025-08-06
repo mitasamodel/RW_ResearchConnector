@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace ResearchConnector
 {
@@ -15,15 +16,15 @@ namespace ResearchConnector
 		/// <param name="toCheck"></param>
 		/// <param name="comp"></param>
 		/// <returns></returns>
-		public static bool Contains(this string source, string toCheck, StringComparison comp)
+		public static bool ContainsIgnoreCase(this string source, string toCheck)
 		{
-			return source?.IndexOf(toCheck, comp) >= 0;
+			return source?.IndexOf(toCheck, StringComparison.OrdinalIgnoreCase) >= 0;
 		}
 
 		public static void Log(string str)
 		{
 #if DEBUG
-			Verse.Log.Message("[ResearchConnector] " + str);
+			File.AppendAllText(ResearchConnector.logFile, str + "\n");
 #endif
 		}
 	}

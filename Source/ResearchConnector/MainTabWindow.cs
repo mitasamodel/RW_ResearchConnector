@@ -24,7 +24,20 @@ namespace ResearchConnector
 
 	public class Window_ResearchConnector : Window
 	{
-		public override Vector2 InitialSize => new Vector2(600f, 500f);
+		[TweakValue("0_MY", 0f, 50f)]
+		static float verticalGap = 20f;
+		[TweakValue("0_MY", 200f, 500f)]
+		static float leftColumnWidth = 300f;
+		[TweakValue("0_MY", 200f, 500f)]
+		static float middleColumnWidth = 300f;
+		[TweakValue("0_MY", 200f, 500f)]
+		static float rightColumnWidth = 300f;
+		[TweakValue("0_MY", 400f, 1200f)]
+		static float width = leftColumnWidth + middleColumnWidth + rightColumnWidth + 2 * verticalGap;
+		[TweakValue("0_MY", 400f, 1000f)]
+		static float height = 500f;
+
+		public override Vector2 InitialSize => new Vector2(width, height);
 
 		public Window_ResearchConnector()
 		{
@@ -62,10 +75,8 @@ namespace ResearchConnector
 		private string selectedModName = null;
 		private Vector2 scrollPositionModSelect = Vector2.zero;
 
-		[TweakValue("0_MY", 10f, 40f)]
-		const float rowHeight = 22f;
-		[TweakValue("0_MY", 50, 150)]
-		const float labelsWidth1 = 80f;
+		string search = "";
+		Vector2 scrollPos = Vector2.zero;
 
 		public override void DoWindowContents(Rect inRect)
 		{
@@ -89,10 +100,57 @@ namespace ResearchConnector
 				);
 			curY += GUI_Utils.rowHeight;
 
-			// Item selection
+			// Item selection - TMP, TODO
+			var tmpLabelRect1 = new Rect(0f, curY, GUI_Utils.labelWidth, GUI_Utils.rowHeight);
+			Widgets.Label(tmpLabelRect1, "Type: ");
+			var tmpSelectionRect1 = new Rect(tmpLabelRect1.width, curY, inRect.width - tmpLabelRect1.width, GUI_Utils.rowHeight);
+			Widgets.DrawHighlightIfMouseover(tmpSelectionRect1);
+			Widgets.Label(tmpSelectionRect1, "x Buildings");
+			Widgets.DrawBox(tmpSelectionRect1);
+			curY += GUI_Utils.rowHeight;
 
+			//Main area. Split into 3 columns
+			Rect mainAreaRect = new Rect(0f, curY, inRect.width, inRect.height - curY);
+			Widgets.DrawBox(mainAreaRect);
+
+			Rect leftColumnRect = new Rect(0f, mainAreaRect.y, leftColumnWidth, mainAreaRect.height);
+			Rect middleColumnRect = new Rect(leftColumnRect.xMax + verticalGap, mainAreaRect.y, middleColumnWidth, mainAreaRect.height);
+			Rect rightDolumnRect = new Rect(middleColumnRect.xMax + verticalGap, mainAreaRect.y, rightColumnWidth, mainAreaRect.height);
+
+			Widgets.DrawBox(leftColumnRect);
+			Widgets.DrawBox(middleColumnRect);
+			Widgets.DrawBox(rightDolumnRect);
+
+
+			// Left column. List of buildings
+			Rect searchFieldRect = new Rect(leftColumnRect.x, leftColumnRect.y, leftColumnWidth, GUI_Utils.rowHeight);
+			search = Widgets.TextField(searchFieldRect, search);
+			var buildings = ResearchConnector.Buildings
+				.Where(def =>
+					(selectedModId == null || def.modContentPack.PackageId == selectedModId) &&
+					(string.IsNullOrEmpty(search) || def.label.ContainsIgnoreCase(search) || def.defName.ContainsIgnoreCase(search))
+				).ToList();
+			Rect scrollPositionRect = new Rect(leftColumnRect.x, searchFieldRect.yMax, leftColumnWidth, leftColumnRect.height - searchFieldRect.height);
+			Rect scrollContentRect = new Rect(0f, 0f, scrollPositionRect.width - GUI_Utils.scrollWidth, buildings.Count * GUI_Utils.rowHeight);
+			float scrollY = 0f;
+			Widgets.BeginScrollView(scrollPositionRect, ref scrollPos, scrollContentRect);
+			foreach(var def in buildings)
+			{
+				Rect rowRect = new Rect(0f,scrollY,scrollContentRect.width, GUI_Utils.rowHeight);
+				Widgets.Label(rowRect, def.label);
+				scrollY += GUI_Utils.rowHeight;
+			}
+			Widgets.EndScrollView();
+			
+			
+			
+			
+			
+			
+			Widgets.Label(middleColumnRect, middleColumnRect.xMax.ToString());
+			Widgets.Label(rightDolumnRect, rightDolumnRect.xMax.ToString());
 		}
 
-		
+
 	}
 }

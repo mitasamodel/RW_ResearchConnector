@@ -3,3 +3,4 @@ _copy-template.sh
 obj/
 bin/
 Source/packages/
+Assemblies/
