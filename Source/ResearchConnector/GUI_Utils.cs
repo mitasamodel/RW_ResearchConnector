@@ -11,7 +11,8 @@ namespace ResearchConnector
 	public static class GUI_Utils
 	{
 		public const float rowHeight = 22f;
-		public const float labelsWidth = 80f;
+		public const float labelWidth = 80f;
+		public const float scrollWidth = 16f;
 
 		public static void LabelWithSelection(
 			Rect inRect,    // Parent Rect
@@ -22,7 +23,7 @@ namespace ResearchConnector
 			Window window       // Dialog for selection
 		)
 		{
-			Rect labelRect = new Rect(0f, curY, labelsWidth, rowHeight);
+			Rect labelRect = new Rect(0f, curY, labelWidth, rowHeight);
 			Widgets.Label(labelRect, labelText);
 			Rect selectRect = new Rect(labelRect.xMax, curY, inRect.width - labelRect.xMax, rowHeight);
 			Widgets.DrawHighlightIfMouseover(selectRect);
