@@ -3,22 +3,22 @@
 <Patch>
 	<Operation Class="PatchOperationConditional">
 		<xpath>Defs/ThingDef[defName="NatureShrine_Small"]/researchPrerequisites</xpath>
-		<nomatch Class="PatchOperationAdd" MayRequire="OskarPotocki.VFE.Tribals">
+		<nomatch Class="PatchOperationAdd">
 			<xpath>Defs/ThingDef[defName="NatureShrine_Small"]</xpath>
 			<value>
 				<researchPrerequisites>
-					<li>VFET_Construction</li>
+					<li MayRequire="OskarPotocki.VFE.Tribals">VFET_Construction</li>
 				</researchPrerequisites>
 			</value>
 		</nomatch>
 	</Operation>
 	<Operation Class="PatchOperationConditional">
 		<xpath>Defs/ThingDef[defName="NatureShrine_Large"]/researchPrerequisites</xpath>
-		<nomatch Class="PatchOperationAdd" MayRequire="OskarPotocki.VFE.Tribals">
+		<nomatch Class="PatchOperationAdd">
 			<xpath>Defs/ThingDef[defName="NatureShrine_Large"]</xpath>
 			<value>
 				<researchPrerequisites>
-					<li>VFET_Construction</li>
+					<li MayRequire="OskarPotocki.VFE.Tribals">VFET_Construction</li>
 				</researchPrerequisites>
 			</value>
 		</nomatch>

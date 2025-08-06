@@ -12,7 +12,13 @@ namespace ResearchConnector
 {
 	public class Dialog_ModSelector : Window
 	{
-		//"Action" or "delegate" is basically a pointer to a function (from C).
+		public override Vector2 InitialSize => new Vector2(500f, 600f);
+
+		[TweakValue("0_MY", 10f, 40f)]
+		static float rowHeight = 22f;
+		const float scrollWidth = 16f;
+
+		//"Action" or "delegate" is basically a pointer to a function (in C).
 		private readonly Action<string, string> _onSelect;		// Execute Method passed from Caller, provide selected modId and modName
 		private readonly Action<Vector2> _onCloseSave;			// Same, but save scroll position outside (to be re-used after re-oppening)
 		private Vector2 _scrollPosition = Vector2.zero;         // Default
@@ -31,11 +37,6 @@ namespace ResearchConnector
 			_onCloseSave = scrollBack;
 		}
 
-		public override Vector2 InitialSize => new Vector2(500f, 600f);
-		
-		[TweakValue("0_MY", 10f, 40f)]
-		static float rowHeight = 22f;
-
 		public override void DoWindowContents(Rect inRect)
 		{
 			//var mods = LoadedModManager.RunningModsListForReading.OrderBy(mod => mod.Name).ToList();
@@ -48,7 +49,7 @@ namespace ResearchConnector
 
 			float contentHeight = mods.Count * rowHeight;
 
-			Rect contentRect = new Rect(0f, 0f, inRect.width - 16f, contentHeight);
+			Rect contentRect = new Rect(0f, 0f, inRect.width - scrollWidth, contentHeight);
 			Rect visibleRect = new Rect(0f, 0f, inRect.width, inRect.height);
 
 			Widgets.BeginScrollView(visibleRect, ref _scrollPosition, contentRect, true);
