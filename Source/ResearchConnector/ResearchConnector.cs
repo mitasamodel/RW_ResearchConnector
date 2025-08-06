@@ -26,22 +26,12 @@ namespace ResearchConnector
 				.Select(mod => (mod.PackageId, mod.Name))
 				.OrderBy(mod => mod.Name)
 				.ToList();
-			Mods.Insert(0, (null, "=All mods="));   // Dummy mod on top - used for "all mods" option
+			Mods.Insert(0, (null, "=Everything="));   // Dummy mod on top - used for "all mods" option
 
-			// Buildings list: MUST go back to window drawing. The cache must be created there - Dictionary
-			Buildings = DefDatabase<ThingDef>.AllDefsListForReading
-				.Where(def => def.category == ThingCategory.Building && !def.IsFrame)
-				.ToList();
-			
-			
-			
-			//foreach (var def in buildings)
-			//{
-			//	if (def.category == ThingCategory.Building && !def.IsFrame)
-			//	{
-			//		Utils.Log(def.defName);
-			//	}
-			//}
+			Utils.Log($"Mods:");
+			foreach(var mod in Mods)
+				Utils.Log($"{mod.Name}: {mod.PackageId}");
+
 		}
 	}
 }
