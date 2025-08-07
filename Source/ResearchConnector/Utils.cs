@@ -10,11 +10,10 @@ namespace ResearchConnector
 	public static class Utils
 	{
 		/// <summary>
-		/// Contains with StringComparer Property
+		/// Contains regardless of cAsE
 		/// </summary>
 		/// <param name="source"></param>
 		/// <param name="toCheck"></param>
-		/// <param name="comp"></param>
 		/// <returns></returns>
 		public static bool ContainsIgnoreCase(this string source, string toCheck)
 		{

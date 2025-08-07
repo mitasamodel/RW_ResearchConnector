@@ -13,7 +13,6 @@ namespace ResearchConnector
 	{
 		private Vector2 _scroll = Vector2.zero;
 		private string _modId;
-		//private string _modName = "Core";
 		private Dictionary<string, ThingDef> _defDict = null;
 		private List<ThingDef> _defList;
 		private string _search = "";
