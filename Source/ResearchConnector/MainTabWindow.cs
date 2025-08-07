@@ -25,7 +25,7 @@ namespace ResearchConnector
 	public class Window_ResearchConnector : Window
 	{
 		// Sometimes if the window is closed via "X" button on top right, it still renders the data
-		// even PostClose() has been already executed. It leads to null-reference exceptions.
+		// even if PostClose() has been already executed. It leads to null-reference exceptions.
 		private bool isClosed = false;
 
 		[TweakValue("0_MY", 0f, 50f)]
@@ -43,11 +43,8 @@ namespace ResearchConnector
 
 		public override Vector2 InitialSize => new Vector2(width, height);
 
-		// Cached ThingDefs
-		// Populated when this window is opened and cleared once it is closed
-		Dictionary<string, ThingDef> defDict;
-
 		// Mod selection
+		// Static fields, so the window will save the selected items between sessions
 		private static string selectedModId = "ludeon.rimworld";
 		private static string selectedModName = "Core";
 		private static Vector2 scrollPositionModSelect = Vector2.zero;
@@ -86,18 +83,18 @@ namespace ResearchConnector
 			grayOutIfOtherDialogOpen = false;
 			drawInScreenshotMode = true;
 			onlyDrawInDevMode = false;
-
-			RebuildCache();
 		}
 
 		
 
-		string search = "";
+		//string search = "";
 		Vector2 scrollPos = Vector2.zero;
+
+		Buildings buildingsArea = new Buildings(selectedModId);
 
 		public override void DoWindowContents(Rect inRect)
 		{
-			if (isClosed) return;	// If PostClose() Method has been executed already. Window must be closed.
+			if (isClosed) return;	// If PostClose() Method has been executed already, this window must be closed.
 
 			float curY = 0f;
 
@@ -109,7 +106,7 @@ namespace ResearchConnector
 						{
 							selectedModId = modId;
 							selectedModName = modName;
-							RebuildCache();
+							buildingsArea.RebuildCache(selectedModId);
 						},
 						scrollPositionModSelect,
 						newScroll =>
@@ -143,65 +140,14 @@ namespace ResearchConnector
 
 
 			// Left column. List of buildings
-			Rect searchFieldRect = new Rect(leftColumnRect.x, leftColumnRect.y, leftColumnWidth, GUI_Utils.rowHeight);
-			search = Widgets.TextField(searchFieldRect, search);
-			var buildings = defDict.Values
-				.Where(def => (string.IsNullOrEmpty(search) || def.label.ContainsIgnoreCase(search) || def.defName.ContainsIgnoreCase(search)))
-				.ToList();
-			Rect scrollPositionRect = new Rect(leftColumnRect.x, searchFieldRect.yMax, leftColumnWidth, leftColumnRect.height - searchFieldRect.height);
-			Rect scrollContentRect = new Rect(0f, 0f, scrollPositionRect.width - GUI_Utils.scrollWidth, buildings.Count * GUI_Utils.rowHeight);
-			float scrollY = 0f;
-			Widgets.BeginScrollView(scrollPositionRect, ref scrollPos, scrollContentRect);
-			foreach(var def in buildings)
-			{
-				Rect rowRect = new Rect(0f,scrollY,scrollContentRect.width, GUI_Utils.rowHeight);
-				Widgets.Label(rowRect, def.label);
-				scrollY += GUI_Utils.rowHeight;
-			}
-			Widgets.EndScrollView();
-			
-			
-			
+			buildingsArea.Draw(leftColumnRect);
+
+
 			
 			
 			
 			Widgets.Label(middleColumnRect, middleColumnRect.xMax.ToString());
 			Widgets.Label(rightDolumnRect, rightDolumnRect.xMax.ToString());
-		}
-
-		private void RebuildCache()
-		{
-#if DEBUG
-			int cnt = defDict?.Count ?? 0;
-#endif
-			defDict?.Clear();
-			defDict = DefDatabase<ThingDef>.AllDefsListForReading
-				.Where(def => 
-					((def.category == category) && (category != ThingCategory.Building || def.BuildableByPlayer)) &&
-					(selectedModId == null || def.modContentPack.PackageId == selectedModId)
-				)
-				.ToDictionary(def => def.label);
-
-#if DEBUG
-			Utils.Log($"Cache rebuilt. Was: {cnt}. New: {defDict.Count}");
-#endif
-		}
-
-		/// <summary>
-		/// Clear cache
-		/// </summary>
-		public override void PostClose()
-		{
-#if DEBUG
-			int cnt = defDict.Count;
-#endif
-			isClosed = true;
-			defDict?.Clear();
-			defDict = null;
-#if DEBUG
-			Utils.Log($"Cache cleared. Was: {cnt}. New: null");
-#endif
-			base.PostClose();
 		}
 	}
 }

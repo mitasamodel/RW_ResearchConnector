@@ -58,6 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Buildings.cs" />
     <Compile Include="Dialog_ModSelector.cs" />
     <Compile Include="GUI_Utils.cs" />
     <Compile Include="MainTabWindow.cs" />
