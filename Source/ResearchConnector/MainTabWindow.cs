@@ -90,7 +90,7 @@ namespace ResearchConnector
 		//string search = "";
 		Vector2 scrollPos = Vector2.zero;
 
-		Buildings buildingsArea = new Buildings(selectedModId);
+		BuildingsLister buildingsArea = new BuildingsLister(selectedModId);
 
 		public override void DoWindowContents(Rect inRect)
 		{
