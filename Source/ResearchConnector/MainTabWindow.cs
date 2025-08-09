@@ -49,9 +49,27 @@ namespace ResearchConnector
 		private static string selectedModName = "Core";
 		private static Vector2 scrollPositionModSelect = Vector2.zero;
 
-		// Category selection
-		// For now only buildings
-		private static ThingCategory category = ThingCategory.Building;
+		// Kind selection
+		private ListerKind _currentKind = ListerKind.Building;
+		private ILister _currentLister = null;
+		private ILister CurrentLister
+		{
+			get
+			{
+				if (_currentLister == null)
+				{
+					if (ResearchConnector.ListerFactories.TryGetValue(_currentKind, out var factory))
+						_currentLister = factory(selectedModId);
+					else
+					{
+						Verse.Log.Error($"[{ResearchConnector.modName}] Unexpected ListerKind value: {_currentKind}. Please report it to mod author.");
+						_currentLister = ResearchConnector.ListerFactories[ListerKind.Building](selectedModId);
+					}
+				}
+
+				return _currentLister;
+			}
+		}
 
 		public Window_ResearchConnector()
 		{
@@ -85,16 +103,9 @@ namespace ResearchConnector
 			onlyDrawInDevMode = false;
 		}
 
-		
-
-		//string search = "";
-		Vector2 scrollPos = Vector2.zero;
-
-		BuildingsLister buildingsArea = new BuildingsLister(selectedModId);
-
 		public override void DoWindowContents(Rect inRect)
 		{
-			if (isClosed) return;	// If PostClose() Method has been executed already, this window must be closed.
+			if (isClosed) return;   // If PostClose() Method has been executed already, this window must be closed.
 
 			float curY = 0f;
 
@@ -106,7 +117,7 @@ namespace ResearchConnector
 						{
 							selectedModId = modId;
 							selectedModName = modName;
-							buildingsArea.RebuildCache(selectedModId);
+							CurrentLister?.RebuildCache(selectedModId);
 						},
 						scrollPositionModSelect,
 						newScroll =>
@@ -140,12 +151,10 @@ namespace ResearchConnector
 
 
 			// Left column. List of buildings
-			buildingsArea.Draw(leftColumnRect);
+			CurrentLister.Draw(leftColumnRect);
 
 
-			
-			
-			
+
 			Widgets.Label(middleColumnRect, middleColumnRect.xMax.ToString());
 			Widgets.Label(rightDolumnRect, rightDolumnRect.xMax.ToString());
 		}

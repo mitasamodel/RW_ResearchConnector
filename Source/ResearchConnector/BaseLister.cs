@@ -9,7 +9,7 @@ using Verse;
 
 namespace ResearchConnector
 {
-	public abstract class BaseLister<TDef> where TDef : Def
+	public abstract class BaseLister<TDef> : ILister where TDef : Def
 	{
 		protected Vector2 _scroll = Vector2.zero;
 		protected string _modId;

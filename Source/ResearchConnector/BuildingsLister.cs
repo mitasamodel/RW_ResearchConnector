@@ -11,6 +11,7 @@ namespace ResearchConnector
 	public class BuildingsLister : BaseLister<ThingDef>
 	{
 		private ThingDef _selected = null;
+		private float _selectedRowHeight = 3f * GUI_Utils.rowHeight;
 
 		public BuildingsLister(string modId = "ludeon.rimworld") : base(modId) { }
 
@@ -25,12 +26,12 @@ namespace ResearchConnector
 		}
 		protected override void DrawRow(Rect rowRect, ThingDef def)
 		{
-			rowRect.height = GetRowHeight(def);
-
 			if (def == _selected)
 			{
+				rowRect.height = _selectedRowHeight;
 				Widgets.DrawBoxSolid(rowRect, new Color32(144, 97, 29, 128));
 			}
+
 			Widgets.DrawHighlightIfMouseover(rowRect);
 			Widgets.Label(new Rect(rowRect.x, rowRect.y, rowRect.width, GUI_Utils.rowHeight), def.label);
 			if (def == _selected)
@@ -49,7 +50,7 @@ namespace ResearchConnector
 
 		protected override float GetRowHeight(ThingDef def)
 		{
-			return def == _selected ? GUI_Utils.rowHeight * 3f : GUI_Utils.rowHeight;
+			return def == _selected ? _selectedRowHeight : GUI_Utils.rowHeight;
 		}
 	}
 }
