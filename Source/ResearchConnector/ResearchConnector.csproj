@@ -60,7 +60,7 @@
   <ItemGroup>
     <Compile Include="BaseLister.cs" />
     <Compile Include="BuildingsLister.cs" />
-    <Compile Include="Dialog_ModSelector.cs" />
+    <Compile Include="Dialog_Selector.cs" />
     <Compile Include="GUI_Utils.cs" />
     <Compile Include="ILister.cs" />
     <Compile Include="MainTabWindow.cs" />

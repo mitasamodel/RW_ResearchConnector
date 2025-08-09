@@ -20,7 +20,9 @@ namespace ResearchConnector
 			string labelText,
 			string selectionString,
 			string selectionDefString,
-			Window window       // Dialog for selection
+			// Func is another pointer to a function, but now it not only takes arguments, but also returns a value. In that case - "Window" type
+			// Func<arg1, arg2, arg3, return> - return is always the last
+			Func<Window> makeWindow       // Dialog for selection
 		)
 		{
 			Rect labelRect = new Rect(0f, curY, labelWidth, rowHeight);
@@ -31,7 +33,7 @@ namespace ResearchConnector
 			Widgets.DrawBox(selectRect);
 			if (Widgets.ButtonInvisible(selectRect))
 			{
-				Find.WindowStack.Add(window);
+				Find.WindowStack.Add(makeWindow());
 			}
 		}
 	}

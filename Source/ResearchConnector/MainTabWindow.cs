@@ -3,6 +3,7 @@ using RimWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -24,6 +25,9 @@ namespace ResearchConnector
 
 	public class Window_ResearchConnector : Window
 	{
+
+		List<SelectorRow> dataForSelector = ResearchConnector.Mods.Select(m => new SelectorRow(m.Name, m.PackageId, m.PackageId)).ToList();
+
 		// Sometimes if the window is closed via "X" button on top right, it still renders the data
 		// even if PostClose() has been already executed. It leads to null-reference exceptions.
 		private bool isClosed = false;
@@ -111,13 +115,21 @@ namespace ResearchConnector
 
 			// Mod selection
 			GUI_Utils.LabelWithSelection(inRect, curY, "Mod:", selectedModName, "Select mod",
-				new Dialog_ModSelector
+				() => new Dialog_Selector
 					(
-						(modId, modName) =>
+						dataForSelector,
+						idx =>
 						{
-							selectedModId = modId;
-							selectedModName = modName;
-							CurrentLister?.RebuildCache(selectedModId);
+							if (idx is int i)
+							{
+								var mod = ResearchConnector.Mods.FirstOrDefault(m => m.Name == dataForSelector[i].Label);
+								if (mod.Name != null)
+								{
+									selectedModId = mod.PackageId;
+									selectedModName = mod.Name;
+									CurrentLister.RebuildCache(selectedModId);
+								}
+							}
 						},
 						scrollPositionModSelect,
 						newScroll =>
