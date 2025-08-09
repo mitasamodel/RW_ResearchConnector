@@ -13,8 +13,7 @@ namespace ResearchConnector
 		private ThingDef _selected = null;
 		private float _selectedRowHeight = 3f * GUI_Utils.rowHeight;
 
-		public BuildingsLister(string modId = "ludeon.rimworld") : base(modId) { }
-
+		public BuildingsLister(string modId = null) : base(modId) { }
 		private Dictionary<string, ThingDef> DefDict
 		{
 			get
@@ -36,7 +35,20 @@ namespace ResearchConnector
 			Widgets.Label(new Rect(rowRect.x, rowRect.y, rowRect.width, GUI_Utils.rowHeight), def.label);
 			if (def == _selected)
 			{
-				Widgets.Label(new Rect(rowRect.x, rowRect.y + GUI_Utils.rowHeight, rowRect.width, GUI_Utils.rowHeight), " -Def: " + def.defName);
+
+				var anchor = Text.Anchor;
+				var wrap = Text.WordWrap;
+				Text.Anchor = TextAnchor.UpperLeft;
+				Text.WordWrap = false;
+				// clip so the text doesn’t bleed outside your row
+				var defRect = new Rect(rowRect.x, rowRect.y + GUI_Utils.rowHeight, rowRect.width, GUI_Utils.rowHeight);
+				GUI.BeginGroup(defRect);
+				Widgets.Label(new Rect(0f, 0f, 10000f, GUI_Utils.rowHeight), " -Def: " + def.defName);
+				GUI.EndGroup();
+				TooltipHandler.TipRegion(defRect, def.defName);
+				Text.WordWrap = wrap;
+				Text.Anchor = anchor;
+
 				Widgets.Label(new Rect(rowRect.x, rowRect.y + 2 * GUI_Utils.rowHeight, rowRect.width, GUI_Utils.rowHeight), " -Cat: " + def.category.ToString());
 			}
 			if (Widgets.ButtonInvisible(rowRect)) _selected = def;

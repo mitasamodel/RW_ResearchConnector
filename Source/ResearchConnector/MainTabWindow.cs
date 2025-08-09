@@ -1,4 +1,5 @@
-﻿using LudeonTK;
+﻿using System.Diagnostics;
+using LudeonTK;
 using RimWorld;
 using System;
 using System.Collections.Generic;
@@ -25,12 +26,9 @@ namespace ResearchConnector
 
 	public class Window_ResearchConnector : Window
 	{
-
-		List<SelectorRow> dataForSelector = ResearchConnector.Mods.Select(m => new SelectorRow(m.Name, m.PackageId, m.PackageId)).ToList();
-
-		// Sometimes if the window is closed via "X" button on top right, it still renders the data
-		// even if PostClose() has been already executed. It leads to null-reference exceptions.
-		private bool isClosed = false;
+		private readonly List<(string PackageId, string Name)> Mods;
+		private readonly List<SelectorRow> dataForSelector_Mods;
+		private readonly List<SelectorRow> dataForSelector_Type;
 
 		[TweakValue("0_MY", 0f, 50f)]
 		static float verticalGap = 20f;
@@ -53,8 +51,8 @@ namespace ResearchConnector
 		private static string selectedModName = "Core";
 		private static Vector2 scrollPositionModSelect = Vector2.zero;
 
-		// Kind selection
-		private ListerKind _currentKind = ListerKind.Building;
+		// Type selection
+		private ListerType _currentType = ListerType.Building;
 		private ILister _currentLister = null;
 		private ILister CurrentLister
 		{
@@ -62,13 +60,25 @@ namespace ResearchConnector
 			{
 				if (_currentLister == null)
 				{
-					if (ResearchConnector.ListerFactories.TryGetValue(_currentKind, out var factory))
+#if DEBUG
+					//Utils.LogNL($"[MainTabWindow] New Lister");
+					//var sw = Stopwatch.StartNew();
+#endif
+					if (ResearchConnector.ListerFactories.TryGetValue(_currentType, out var factory))
+					{
 						_currentLister = factory(selectedModId);
+					}
 					else
 					{
-						Verse.Log.Error($"[{ResearchConnector.modName}] Unexpected ListerKind value: {_currentKind}. Please report it to mod author.");
-						_currentLister = ResearchConnector.ListerFactories[ListerKind.Building](selectedModId);
+						Verse.Log.Error($"[{ResearchConnector.modName}] Unexpected ListerType value: {_currentType}. Please report it to mod author.");
+						_currentType = ListerType.Building;
+						_currentLister = ResearchConnector.ListerFactories[ListerType.Building](selectedModId);
 					}
+
+#if DEBUG
+					//sw.Stop();
+					//Utils.LogNL($"[MainTabWindow] Lister creation took {sw.ElapsedMilliseconds} ms");
+#endif
 				}
 
 				return _currentLister;
@@ -105,24 +115,37 @@ namespace ResearchConnector
 			grayOutIfOtherDialogOpen = false;
 			drawInScreenshotMode = true;
 			onlyDrawInDevMode = false;
+
+			// Mods list
+			Mods = LoadedModManager.RunningModsListForReading
+				.Select(mod => (mod.PackageId, mod.Name))
+				.OrderBy(mod => mod.Name)
+				.ToList();
+			Mods.Insert(0, ("=Everything=", "=Everything="));   // Display all data
+			Mods.Insert(0, (null, "=Unknown/Undefined="));      // Defs without modContentPack
+
+			// Packages for lister
+			dataForSelector_Mods = Mods.Select(m => new SelectorRow(m.Name, m.PackageId, m.PackageId)).ToList();
+			dataForSelector_Type = Enum.GetValues(typeof(ListerType))
+				.Cast<ListerType>()
+				.Select(kind => new SelectorRow(kind.ToString(), null, null))
+				.ToList();
 		}
 
 		public override void DoWindowContents(Rect inRect)
 		{
-			if (isClosed) return;   // If PostClose() Method has been executed already, this window must be closed.
-
 			float curY = 0f;
 
 			// Mod selection
 			GUI_Utils.LabelWithSelection(inRect, curY, "Mod:", selectedModName, "Select mod",
 				() => new Dialog_Selector
 					(
-						dataForSelector,
+						dataForSelector_Mods,
 						idx =>
 						{
 							if (idx is int i)
 							{
-								var mod = ResearchConnector.Mods.FirstOrDefault(m => m.Name == dataForSelector[i].Label);
+								var mod = Mods.FirstOrDefault(m => m.Name == dataForSelector_Mods[i].Label);
 								if (mod.Name != null)
 								{
 									selectedModId = mod.PackageId;
@@ -140,13 +163,21 @@ namespace ResearchConnector
 				);
 			curY += GUI_Utils.rowHeight;
 
-			// Item selection - TMP, TODO
-			var tmpLabelRect1 = new Rect(0f, curY, GUI_Utils.labelWidth, GUI_Utils.rowHeight);
-			Widgets.Label(tmpLabelRect1, "Type: ");
-			var tmpSelectionRect1 = new Rect(tmpLabelRect1.width, curY, inRect.width - tmpLabelRect1.width, GUI_Utils.rowHeight);
-			Widgets.DrawHighlightIfMouseover(tmpSelectionRect1);
-			Widgets.Label(tmpSelectionRect1, "x Buildings");
-			Widgets.DrawBox(tmpSelectionRect1);
+			// Type selection
+			GUI_Utils.LabelWithSelection(inRect, curY, "Type: ", _currentType.ToString(), "Select type",
+				() => new Dialog_Selector
+					(
+						dataForSelector_Type,
+						idx =>
+						{
+							if (idx is int i)
+							{
+								_currentType = (ListerType)i;
+								_currentLister = null;      // Force rebuild next access
+							}
+						}
+					)
+				);
 			curY += GUI_Utils.rowHeight;
 
 			//Main area. Split into 3 columns

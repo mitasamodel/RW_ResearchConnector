@@ -20,7 +20,19 @@ namespace ResearchConnector
 			return source?.IndexOf(toCheck, StringComparison.OrdinalIgnoreCase) >= 0;
 		}
 
+		static string Truncate(string text, int maxLength)
+		{
+			if (string.IsNullOrEmpty(text)) return text;
+			return text.Length <= maxLength ? text : text.Substring(0, maxLength);
+		}
+
 		public static void Log(string str)
+		{
+#if DEBUG
+			File.AppendAllText(ResearchConnector.logFile, str);
+#endif
+		}
+		public static void LogNL(string str)
 		{
 #if DEBUG
 			File.AppendAllText(ResearchConnector.logFile, str + "\n");

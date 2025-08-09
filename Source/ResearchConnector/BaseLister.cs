@@ -20,6 +20,9 @@ namespace ResearchConnector
 
 		public BaseLister(string modId = null)
 		{
+#if DEBUG
+			Utils.LogNL($"[BaseLister] Construct {this.GetType().Name} (modId={modId})");
+#endif
 			_modId = modId;
 			RebuildCache(_modId);
 		}
@@ -38,13 +41,13 @@ namespace ResearchConnector
 			var list = _filteredList ?? new List<TDef>();
 
 			// Content height depends on def - if def is selected, the height will be taller.
-			float totalHeight = 0;			
+			float totalHeight = 0;
 			foreach (var def in list)
 				totalHeight += GetRowHeight(def);
 
 			Rect scrollPositionRect = new Rect(inRect.x, searchFieldRect.yMax, inRect.width, inRect.height - searchFieldRect.height);
 			Rect scrollContentRect = new Rect(0f, 0f, scrollPositionRect.width - GUI_Utils.scrollWidth, totalHeight);
-			
+
 			float scrollY = 0f;
 			Widgets.BeginScrollView(scrollPositionRect, ref _scroll, scrollContentRect);
 			Rect rowRect = new Rect(0f, scrollY, scrollContentRect.width, GUI_Utils.rowHeight);
@@ -53,7 +56,7 @@ namespace ResearchConnector
 				float height = GetRowHeight(def);
 				rowRect.y = scrollY;
 				DrawRow(rowRect, def);
-				scrollY += height;				
+				scrollY += height;
 			}
 			Widgets.EndScrollView();
 		}
@@ -64,10 +67,17 @@ namespace ResearchConnector
 			int cnt = _defList?.Count ?? 0;
 #endif
 			_modId = modId;
-			_defList = BuildList().Where(def => _modId == null || def.modContentPack.PackageId == _modId).ToList();
+			if (_modId != null)
+			{
+				_defList = BuildList().Where(def => _modId == "=Everything=" || string.Equals(def.modContentPack?.PackageId, _modId, StringComparison.OrdinalIgnoreCase)).ToList();
+			}
+			else
+			{
+				_defList = BuildList().Where(def => def.modContentPack == null).ToList();
+			}
 			_defDict = null;
 #if DEBUG
-			Utils.Log($"Cache rebuilt. Was: {cnt}. New: {_defList.Count}");
+			Utils.LogNL($"[BaseLister] Cache rebuilt. Was: {cnt}. New: {_defList.Count}");
 #endif
 			UpdateFilter();
 		}
@@ -81,7 +91,7 @@ namespace ResearchConnector
 				.Where(def => MatchesSearch(def, _search))
 				.ToList();
 #if DEBUG
-			Utils.Log($"Filter rebuilt. Was: {cnt}. New: {_filteredList.Count}");
+			Utils.LogNL($"[BaseLister] Filter rebuilt. Was: {cnt}. New: {_filteredList.Count}");
 #endif
 		}
 
@@ -93,6 +103,6 @@ namespace ResearchConnector
 				|| def.defName?.ContainsIgnoreCase(search) == true;
 		}
 		protected abstract void DrawRow(Rect rowRect, TDef def);
-		protected virtual float GetRowHeight(TDef def) => GUI_Utils.rowHeight;
+		protected abstract float GetRowHeight(TDef def);
 	}
 }
