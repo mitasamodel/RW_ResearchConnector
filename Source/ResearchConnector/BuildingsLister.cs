@@ -40,7 +40,7 @@ namespace ResearchConnector
 				var wrap = Text.WordWrap;
 				Text.Anchor = TextAnchor.UpperLeft;
 				Text.WordWrap = false;
-				// clip so the text doesn’t bleed outside your row
+				// clip the text
 				var defRect = new Rect(rowRect.x, rowRect.y + GUI_Utils.rowHeight, rowRect.width, GUI_Utils.rowHeight);
 				GUI.BeginGroup(defRect);
 				Widgets.Label(new Rect(0f, 0f, 10000f, GUI_Utils.rowHeight), " -Def: " + def.defName);

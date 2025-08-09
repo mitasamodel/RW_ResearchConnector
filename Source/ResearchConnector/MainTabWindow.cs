@@ -117,12 +117,15 @@ namespace ResearchConnector
 			onlyDrawInDevMode = false;
 
 			// Mods list
-			Mods = LoadedModManager.RunningModsListForReading
+			Mods = new List<(string PackageId, string Name)>()
+			{
+				(null, "=Unknown/Undefined="),		// Defs without modContentPack
+				("=Everything=", "=Everything=")	// Display all data
+			};
+			Mods.AddRange(LoadedModManager.RunningModsListForReading
 				.Select(mod => (mod.PackageId, mod.Name))
 				.OrderBy(mod => mod.Name)
-				.ToList();
-			Mods.Insert(0, ("=Everything=", "=Everything="));   // Display all data
-			Mods.Insert(0, (null, "=Unknown/Undefined="));      // Defs without modContentPack
+				.ToList());
 
 			// Packages for lister
 			dataForSelector_Mods = Mods.Select(m => new SelectorRow(m.Name, m.PackageId, m.PackageId)).ToList();
