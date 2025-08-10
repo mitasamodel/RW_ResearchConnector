@@ -8,14 +8,18 @@ using Verse;
 
 namespace ResearchConnector
 {
-	public class ResearchLister : BaseLister<ResearchProjectDef>
+	public class ResearchToAssignLister : BaseLister<ResearchProjectDef>
 	{
-		public ResearchLister(string modId = null) : base(modId) { }
+		private readonly float rowHeight = Utils_GUI.rowHeight;
 
+		public ResearchToAssignLister()
+		{
+			RebuildCache("=Everything=");		// Always all data displayed
+		}
 		protected override IEnumerable<ResearchProjectDef> BuildList()
 		{
-			var list = DefDatabase<ResearchProjectDef>.AllDefsListForReading;
-			return list;
+			return DefDatabase<ResearchProjectDef>.AllDefsListForReading
+				.OrderBy(def => def.label);
 		}
 
 		protected override void DrawRow(Rect rowRect, ResearchProjectDef def)
@@ -25,7 +29,7 @@ namespace ResearchConnector
 
 		protected override float GetRowHeight(ResearchProjectDef def)
 		{
-			return Utils_GUI.rowHeight;
+			return rowHeight;
 		}
 		public override Def SelectedDef()
 		{

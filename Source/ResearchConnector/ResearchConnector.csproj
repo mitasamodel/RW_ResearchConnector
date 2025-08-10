@@ -61,6 +61,8 @@
     <Compile Include="BaseLister.cs" />
     <Compile Include="BuildingsLister.cs" />
     <Compile Include="Dialog_Selector.cs" />
+    <Compile Include="ResearchAssignedLister.cs" />
+    <Compile Include="ResearchToAssignLister.cs" />
     <Compile Include="Utils_GUI.cs" />
     <Compile Include="ILister.cs" />
     <Compile Include="ItemsLister.cs" />

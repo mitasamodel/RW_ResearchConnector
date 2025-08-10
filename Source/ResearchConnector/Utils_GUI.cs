@@ -16,7 +16,6 @@ namespace ResearchConnector
 
 		public static void LabelWithSelection(
 			Rect inRect,    // Parent Rect
-			float curY,     // Current row (coordinate)
 			string labelText,
 			string selectionString,
 			string selectionDefString,
@@ -25,9 +24,9 @@ namespace ResearchConnector
 			Func<Window> makeWindow       // Dialog for selection
 		)
 		{
-			Rect labelRect = new Rect(0f, curY, labelWidth, rowHeight);
+			Rect labelRect = new Rect(0f, inRect.y, labelWidth, rowHeight);
 			Widgets.Label(labelRect, labelText);
-			Rect selectRect = new Rect(labelRect.xMax, curY, inRect.width - labelRect.xMax, rowHeight);
+			Rect selectRect = new Rect(labelRect.xMax, inRect.y, inRect.width - labelRect.xMax, rowHeight);
 			Widgets.DrawHighlightIfMouseover(selectRect);
 			Widgets.Label(selectRect, "▼ " + (selectionString ?? selectionDefString));
 			Widgets.DrawBox(selectRect);

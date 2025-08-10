@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Verse;
 
 namespace ResearchConnector
 {
@@ -11,5 +12,6 @@ namespace ResearchConnector
 	{
 		void Draw(Rect inRect);
 		void RebuildCache(string modId);
+		Def SelectedDef();
 	}
 }

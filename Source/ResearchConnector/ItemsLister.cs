@@ -30,5 +30,9 @@ namespace ResearchConnector
 		{
 			return Utils_GUI.rowHeight;
 		}
+		public override Def SelectedDef()
+		{
+			return null;
+		}
 	}
 }

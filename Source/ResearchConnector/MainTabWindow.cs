@@ -29,17 +29,20 @@ namespace ResearchConnector
 		private readonly List<(string PackageId, string Name)> Mods;
 		private readonly List<SelectorRow> dataForSelector_Mods;
 		private readonly List<SelectorRow> dataForSelector_Type;
+		private readonly ResearchToAssignLister researchesToAssign;
+		private readonly ResearchAssignedLister assigned;
 
+		const float windowMargin = 18f;
 		[TweakValue("0_MY", 0f, 50f)]
 		static float verticalGap = 20f;
 		[TweakValue("0_MY", 200f, 500f)]
 		static float leftColumnWidth = 300f;
 		[TweakValue("0_MY", 200f, 500f)]
 		static float middleColumnWidth = 300f;
-		[TweakValue("0_MY", 200f, 500f)]
-		static float rightColumnWidth = 300f;
+		[TweakValue("0_MY", 100f, 300f)]
+		static float rightColumnWidth = 200f;
 		[TweakValue("0_MY", 400f, 1200f)]
-		static float width = leftColumnWidth + middleColumnWidth + rightColumnWidth + 2 * verticalGap;
+		static float width = leftColumnWidth + middleColumnWidth + rightColumnWidth + 2 * verticalGap + 2 * windowMargin;
 		[TweakValue("0_MY", 400f, 1000f)]
 		static float height = 500f;
 
@@ -54,7 +57,7 @@ namespace ResearchConnector
 		// Type selection
 		private ListerType _currentType = ListerType.Building;
 		private ILister _currentLister = null;
-		private ILister CurrentLister
+		public ILister CurrentLister
 		{
 			get
 			{
@@ -84,6 +87,8 @@ namespace ResearchConnector
 				return _currentLister;
 			}
 		}
+
+		float rowHeight = Utils_GUI.rowHeight;
 
 		public Window_ResearchConnector()
 		{
@@ -133,6 +138,12 @@ namespace ResearchConnector
 				.Cast<ListerType>()
 				.Select(kind => new SelectorRow(kind.ToString(), null, null))
 				.ToList();
+
+			// Available researches to assing
+			researchesToAssign = new ResearchToAssignLister();
+
+			// Assigned researches
+			assigned = new ResearchAssignedLister();
 		}
 
 		public override void DoWindowContents(Rect inRect)
@@ -140,23 +151,10 @@ namespace ResearchConnector
 			float curY = 0f;
 
 			// Mod selection
-			Utils_GUI.LabelWithSelection(inRect, curY, "Mod:", selectedModName, "Select mod",
-				() => new Dialog_Selector
-					(
-						dataForSelector_Mods,
-						OnModSelect,
-						scrollPositionModSelect,
-						newScroll => scrollPositionModSelect = newScroll,
-						windowRect
-					)
-			);
-			curY += Utils_GUI.rowHeight;
+			curY += DrawModSelector(new Rect(0f, curY, inRect.width, rowHeight));
 
 			// Type selection
-			Utils_GUI.LabelWithSelection(inRect, curY, "Type: ", _currentType.ToString(), "Select type",
-				() => new Dialog_Selector(dataForSelector_Type, OnTypeSelect, Vector2.zero, null, windowRect)
-			);
-			curY += Utils_GUI.rowHeight;
+			curY += DrawTypeSelector(new Rect(0f, curY, inRect.width, rowHeight));
 
 			//Main area. Split into 3 columns
 			Rect mainAreaRect = new Rect(0f, curY, inRect.width, inRect.height - curY);
@@ -164,20 +162,42 @@ namespace ResearchConnector
 
 			Rect leftColumnRect = new Rect(0f, mainAreaRect.y, leftColumnWidth, mainAreaRect.height);
 			Rect middleColumnRect = new Rect(leftColumnRect.xMax + verticalGap, mainAreaRect.y, middleColumnWidth, mainAreaRect.height);
-			Rect rightDolumnRect = new Rect(middleColumnRect.xMax + verticalGap, mainAreaRect.y, rightColumnWidth, mainAreaRect.height);
-
+			Rect rightColumnRect = new Rect(middleColumnRect.xMax + verticalGap, mainAreaRect.y, rightColumnWidth, mainAreaRect.height);
 			Widgets.DrawBox(leftColumnRect);
 			Widgets.DrawBox(middleColumnRect);
-			Widgets.DrawBox(rightDolumnRect);
+			Widgets.DrawBox(rightColumnRect);
 
-
-			// Left column. List of buildings
+			// Left column. List of things in selected Type
 			CurrentLister.Draw(leftColumnRect);
 
+			// Middle column. List of assigned researches
+			assigned.Draw(middleColumnRect, CurrentLister);
 
+			// Right column. List of researches
+			researchesToAssign.Draw(rightColumnRect);
+		}
 
-			Widgets.Label(middleColumnRect, middleColumnRect.xMax.ToString());
-			Widgets.Label(rightDolumnRect, rightDolumnRect.xMax.ToString());
+		private float DrawTypeSelector(Rect inRect)
+		{
+			Utils_GUI.LabelWithSelection(inRect, "Type: ", _currentType.ToString(), "Select type",
+				() => new Dialog_Selector(dataForSelector_Type, OnTypeSelect, Vector2.zero, null, windowRect)
+			);
+			return inRect.height;
+		}
+
+		private float DrawModSelector(Rect inRect)
+		{
+			Utils_GUI.LabelWithSelection(inRect, "Mod:", selectedModName, "Select mod",
+				() => new Dialog_Selector
+					(
+						dataForSelector_Mods,
+						OnModSelect,            // Get executed if clicked on element in the list
+						scrollPositionModSelect,
+						newScroll => scrollPositionModSelect = newScroll,       // Save scroll position on Close
+						windowRect          // Where to draw - at the same location as this window (windowRect)
+					)
+			);
+			return inRect.height;
 		}
 
 		private void OnModSelect(int? idx)
@@ -212,5 +232,7 @@ namespace ResearchConnector
 				Verse.Log.Error($"[{ResearchConnector.modName}] Unexpected 'idx' value in mod selector: [{idx}]:[{typeName}]. Please report it to mod's author.");
 			}
 		}
+
+
 	}
 }

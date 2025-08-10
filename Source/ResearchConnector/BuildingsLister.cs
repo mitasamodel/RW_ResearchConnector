@@ -64,5 +64,10 @@ namespace ResearchConnector
 		{
 			return def == _selected ? _selectedRowHeight : Utils_GUI.rowHeight;
 		}
+
+		public override Def SelectedDef()
+		{
+			return _selected;
+		}
 	}
 }

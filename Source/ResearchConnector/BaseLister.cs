@@ -104,5 +104,6 @@ namespace ResearchConnector
 		}
 		protected abstract void DrawRow(Rect rowRect, TDef def);
 		protected abstract float GetRowHeight(TDef def);
+		public abstract Def SelectedDef();
 	}
 }

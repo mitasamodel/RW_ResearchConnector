@@ -27,7 +27,7 @@ namespace ResearchConnector
 		private readonly float scrollW = Utils_GUI.scrollWidth;
 
 		public override Vector2 InitialSize => new Vector2(500f, 600f);
-		
+
 		private Rect? _anchorScreenRect;    // Screen-space rect of the control that opened this dialog (optional)
 
 		private readonly List<SelectorRow> _inputList;
@@ -129,7 +129,7 @@ namespace ResearchConnector
 				float x = r.x + 18f;
 				float y = r.y + 18f;
 
-				// (nice to have) clamp to screen
+				// Clamp to screen
 				x = Mathf.Clamp(x, 0f, UI.screenWidth - size.x);
 				y = Mathf.Clamp(y, 0f, UI.screenHeight - size.y);
 

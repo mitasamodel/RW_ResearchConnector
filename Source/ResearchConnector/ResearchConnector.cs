@@ -44,7 +44,9 @@ namespace ResearchConnector
 #endif
 
 #if DEBUG
-			int maxL1, maxL2;
+#pragma warning disable CS0168 // Variable is declared but never used
+			int maxL1, maxL2, maxL3, maxL4;
+#pragma warning restore CS0168 // Variable is declared but never used
 
 			// Mods
 			var mods = LoadedModManager.RunningModsListForReading
