@@ -48,13 +48,28 @@ namespace ResearchConnector
 			Rect scrollPositionRect = new Rect(inRect.x, searchFieldRect.yMax, inRect.width, inRect.height - searchFieldRect.height);
 			Rect scrollContentRect = new Rect(0f, 0f, scrollPositionRect.width - Utils_GUI.scrollWidth, totalHeight);
 
+			float viewTop = _scroll.y;
+			float viewBot = _scroll.y + scrollPositionRect.height;
+
 			float scrollY = 0f;
 			Widgets.BeginScrollView(scrollPositionRect, ref _scroll, scrollContentRect);
 			Rect rowRect = new Rect(0f, scrollY, scrollContentRect.width, Utils_GUI.rowHeight);
 			foreach (var def in list)
 			{
 				float height = GetRowHeight(def);
+				
+				// Skip all labels above the view
+				if ( scrollY + height <= viewTop )
+				{
+					scrollY += height;
+					continue;
+				}
+				// Stop at the bottom
+				if (scrollY >= viewBot)
+					break;
+
 				rowRect.y = scrollY;
+				rowRect.height = height;
 				DrawRow(rowRect, def);
 				scrollY += height;
 			}
