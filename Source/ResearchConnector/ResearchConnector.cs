@@ -48,6 +48,10 @@ namespace ResearchConnector
 			int maxL1, maxL2, maxL3, maxL4;
 #pragma warning restore CS0168 // Variable is declared but never used
 
+			// Some defs for future:
+			// PlantDef
+			// RecipeDef
+
 			// Mods
 			var mods = LoadedModManager.RunningModsListForReading
 				.Select(mod => (mod.PackageId, mod.Name))

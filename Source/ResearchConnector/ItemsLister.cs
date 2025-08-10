@@ -10,6 +10,7 @@ namespace ResearchConnector
 {
 	public class ItemsLister : BaseLister<ThingDef>
 	{
+		private ThingDef _selected;
 		public ItemsLister(string modId = null) : base(modId)
 		{
 		}
@@ -23,7 +24,9 @@ namespace ResearchConnector
 
 		protected override void DrawRow(Rect rowRect, ThingDef def)
 		{
+			Widgets.DrawHighlightIfMouseover(rowRect);
 			Widgets.Label(rowRect, def.label);
+			if (Widgets.ButtonInvisible(rowRect)) _selected = def;
 		}
 
 		protected override float GetRowHeight(ThingDef def)
@@ -32,7 +35,7 @@ namespace ResearchConnector
 		}
 		public override Def SelectedDef()
 		{
-			return null;
+			return _selected;
 		}
 	}
 }

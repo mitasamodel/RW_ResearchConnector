@@ -17,6 +17,7 @@ namespace ResearchConnector
 		protected List<TDef> _defList;
 		protected string _search = "";
 		protected List<TDef> _filteredList;
+		private readonly List<Action> _postActions = new List<Action>(2);
 
 		public BaseLister(string modId = null)
 		{
@@ -74,6 +75,14 @@ namespace ResearchConnector
 				scrollY += height;
 			}
 			Widgets.EndScrollView();
+
+			// Run actions after loop finished
+			if (_postActions.Count > 0)
+			{
+				var actions = _postActions.ToArray();
+				_postActions.Clear();
+				foreach (var a in actions) a();
+			}
 		}
 
 		public void RebuildCache(string modId)
@@ -108,6 +117,11 @@ namespace ResearchConnector
 #if DEBUG
 			Utils.LogNL($"[BaseLister] Filter rebuilt. Was: {cnt}. New: {_filteredList.Count}");
 #endif
+		}
+
+		protected void EnqueuePost(Action action)
+		{
+			if (action != null) _postActions.Add(action);
 		}
 
 		protected abstract IEnumerable<TDef> BuildList();

@@ -140,10 +140,10 @@ namespace ResearchConnector
 				.ToList();
 
 			// Available researches to assing
-			researchesToAssign = new ResearchToAssignLister();
+			researchesToAssign = new ResearchToAssignLister(OnAssignResearch);
 
 			// Assigned researches
-			assigned = new ResearchAssignedLister();
+			assigned = new ResearchAssignedLister(OnRemoveResearch);
 		}
 
 		public override void DoWindowContents(Rect inRect)
@@ -175,6 +175,69 @@ namespace ResearchConnector
 
 			// Right column. List of researches
 			researchesToAssign.Draw(rightColumnRect);
+		}
+
+		private void OnRemoveResearch(ResearchProjectDef resDef)
+		{
+			if ( resDef == null ) return;
+			var def = CurrentLister.SelectedDef();
+			if (def == null) return;
+
+			// Currently only for Things
+			if (def is ThingDef thingDef)
+			{
+				if (thingDef.researchPrerequisites == null) return;
+
+				thingDef.researchPrerequisites.Remove(resDef);
+				RemoveResearchHyperling(thingDef, resDef);
+			}
+			else
+				Utils.LogNL($"[Not-ThingDef] {def.defName}");
+		}
+
+		private void RemoveResearchHyperling(ThingDef def, ResearchProjectDef resDef)
+		{
+			if (def == null ) return;
+			if (resDef == null) return;
+			if (def.descriptionHyperlinks == null) return;
+			def.descriptionHyperlinks.RemoveAll(link => link.def == resDef);
+		}
+
+		private void AddResearchHyperlink(ThingDef toDef, ResearchProjectDef resDef)
+		{
+			if (toDef == null) return;
+			if (resDef == null) return;
+			if (toDef.descriptionHyperlinks == null)
+				toDef.descriptionHyperlinks = new List<DefHyperlink>();
+			if (!toDef.descriptionHyperlinks.Any(link => link.def == resDef))
+				toDef.descriptionHyperlinks.Add(resDef);
+		}
+
+		private void OnAssignResearch(Def resDef)
+		{
+			if (resDef == null) return;
+			if (resDef is ResearchProjectDef research)
+			{
+				var def = CurrentLister.SelectedDef();
+				if (def == null) return;
+
+				// Currently only for Things
+				if (def is ThingDef thingDef)
+				{
+					if (thingDef.researchPrerequisites == null)
+						thingDef.researchPrerequisites = new List<ResearchProjectDef>();
+
+					if (!thingDef.researchPrerequisites.Contains(research))
+					{
+						thingDef.researchPrerequisites.Add(research);
+						AddResearchHyperlink(thingDef, research);
+					}
+				}
+				else
+					Utils.LogNL($"[Not-ThingDef] {def.defName}");
+			}
+			else
+				Verse.Log.Error($"[{ResearchConnector.modName}] Unexpected research type - not a researchDef: [{resDef.defName}]. Please report it to mod's author.");
 		}
 
 		private float DrawTypeSelector(Rect inRect)

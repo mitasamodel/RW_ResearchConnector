@@ -11,10 +11,12 @@ namespace ResearchConnector
 	public class ResearchToAssignLister : BaseLister<ResearchProjectDef>
 	{
 		private readonly float rowHeight = Utils_GUI.rowHeight;
+		private Action<Def> _onClick;
 
-		public ResearchToAssignLister()
+		public ResearchToAssignLister(Action<Def> onClick)
 		{
-			RebuildCache("=Everything=");		// Always all data displayed
+			_onClick = onClick;     // Method to be called on click
+			RebuildCache("=Everything=");       // Always all data displayed
 		}
 		protected override IEnumerable<ResearchProjectDef> BuildList()
 		{
@@ -24,7 +26,10 @@ namespace ResearchConnector
 
 		protected override void DrawRow(Rect rowRect, ResearchProjectDef def)
 		{
+			Widgets.DrawHighlightIfMouseover(rowRect);
 			Widgets.Label(rowRect, def.label);
+			if (Widgets.ButtonInvisible(rowRect))
+				EnqueuePost(() => _onClick?.Invoke(def));	// Add action to the list. Will be executed after foreach loop finished
 		}
 
 		protected override float GetRowHeight(ResearchProjectDef def)
