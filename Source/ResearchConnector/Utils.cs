@@ -4,11 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Security.Policy;
 
 namespace ResearchConnector
 {
 	public static class Utils
 	{
+		/// <summary>
+		/// Returns string consisted of tabs
+		/// </summary>
+		/// <param name="strLength">Original string length</param>
+		/// <param name="maxLength">Max length to add up tabs</param>
+		/// <returns></returns>
+		public static string TabsAfter(int strLength, int maxLength)
+		{
+			// How many characters remain to the max length
+			int diff = maxLength - (strLength + 1);		// +1 due to "]"
+			diff = diff < 1 ? 1 : diff;
+
+			return new string(' ', diff);
+		}
+
 		/// <summary>
 		/// Contains regardless of cAsE
 		/// </summary>

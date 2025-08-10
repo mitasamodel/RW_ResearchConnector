@@ -8,7 +8,7 @@ using Verse;
 
 namespace ResearchConnector
 {
-	public static class GUI_Utils
+	public static class Utils_GUI
 	{
 		public const float rowHeight = 22f;
 		public const float labelWidth = 80f;

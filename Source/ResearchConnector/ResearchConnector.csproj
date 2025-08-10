@@ -61,7 +61,7 @@
     <Compile Include="BaseLister.cs" />
     <Compile Include="BuildingsLister.cs" />
     <Compile Include="Dialog_Selector.cs" />
-    <Compile Include="GUI_Utils.cs" />
+    <Compile Include="Utils_GUI.cs" />
     <Compile Include="ILister.cs" />
     <Compile Include="ItemsLister.cs" />
     <Compile Include="MainTabWindow.cs" />
@@ -69,6 +69,7 @@
     <Compile Include="ResearchConnector.cs" />
     <Compile Include="ResearchLister.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="Utils_Data.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

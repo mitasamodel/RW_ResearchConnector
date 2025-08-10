@@ -21,7 +21,7 @@ namespace ResearchConnector
 		public BaseLister(string modId = null)
 		{
 #if DEBUG
-			Utils.LogNL($"[BaseLister] Construct {this.GetType().Name} (modId={modId})");
+			Utils.LogNL($"[BaseLister] Construct[{this.GetType().Name}] modId[{modId ?? "null"}]");
 #endif
 			_modId = modId;
 			RebuildCache(_modId);
@@ -29,7 +29,7 @@ namespace ResearchConnector
 
 		public void Draw(Rect inRect)
 		{
-			Rect searchFieldRect = new Rect(inRect.x, inRect.y, inRect.width, GUI_Utils.rowHeight);
+			Rect searchFieldRect = new Rect(inRect.x, inRect.y, inRect.width, Utils_GUI.rowHeight);
 			var newSearch = Widgets.TextField(searchFieldRect, _search);
 			if (newSearch != _search)
 			{
@@ -46,11 +46,11 @@ namespace ResearchConnector
 				totalHeight += GetRowHeight(def);
 
 			Rect scrollPositionRect = new Rect(inRect.x, searchFieldRect.yMax, inRect.width, inRect.height - searchFieldRect.height);
-			Rect scrollContentRect = new Rect(0f, 0f, scrollPositionRect.width - GUI_Utils.scrollWidth, totalHeight);
+			Rect scrollContentRect = new Rect(0f, 0f, scrollPositionRect.width - Utils_GUI.scrollWidth, totalHeight);
 
 			float scrollY = 0f;
 			Widgets.BeginScrollView(scrollPositionRect, ref _scroll, scrollContentRect);
-			Rect rowRect = new Rect(0f, scrollY, scrollContentRect.width, GUI_Utils.rowHeight);
+			Rect rowRect = new Rect(0f, scrollY, scrollContentRect.width, Utils_GUI.rowHeight);
 			foreach (var def in list)
 			{
 				float height = GetRowHeight(def);

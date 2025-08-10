@@ -140,48 +140,23 @@ namespace ResearchConnector
 			float curY = 0f;
 
 			// Mod selection
-			GUI_Utils.LabelWithSelection(inRect, curY, "Mod:", selectedModName, "Select mod",
+			Utils_GUI.LabelWithSelection(inRect, curY, "Mod:", selectedModName, "Select mod",
 				() => new Dialog_Selector
 					(
 						dataForSelector_Mods,
-						idx =>
-						{
-							if (idx is int i)
-							{
-								var mod = Mods.FirstOrDefault(m => m.Name == dataForSelector_Mods[i].Label);
-								if (mod.Name != null)
-								{
-									selectedModId = mod.PackageId;
-									selectedModName = mod.Name;
-									CurrentLister.RebuildCache(selectedModId);
-								}
-							}
-						},
+						OnModSelect,
 						scrollPositionModSelect,
-						newScroll =>
-						{
-							scrollPositionModSelect = newScroll;
-						}
+						newScroll => scrollPositionModSelect = newScroll,
+						windowRect
 					)
-				);
-			curY += GUI_Utils.rowHeight;
+			);
+			curY += Utils_GUI.rowHeight;
 
 			// Type selection
-			GUI_Utils.LabelWithSelection(inRect, curY, "Type: ", _currentType.ToString(), "Select type",
-				() => new Dialog_Selector
-					(
-						dataForSelector_Type,
-						idx =>
-						{
-							if (idx is int i)
-							{
-								_currentType = (ListerType)i;
-								_currentLister = null;      // Force rebuild next access
-							}
-						}
-					)
-				);
-			curY += GUI_Utils.rowHeight;
+			Utils_GUI.LabelWithSelection(inRect, curY, "Type: ", _currentType.ToString(), "Select type",
+				() => new Dialog_Selector(dataForSelector_Type, OnTypeSelect, Vector2.zero, null, windowRect)
+			);
+			curY += Utils_GUI.rowHeight;
 
 			//Main area. Split into 3 columns
 			Rect mainAreaRect = new Rect(0f, curY, inRect.width, inRect.height - curY);
@@ -203,6 +178,39 @@ namespace ResearchConnector
 
 			Widgets.Label(middleColumnRect, middleColumnRect.xMax.ToString());
 			Widgets.Label(rightDolumnRect, rightDolumnRect.xMax.ToString());
+		}
+
+		private void OnModSelect(int? idx)
+		{
+			if (idx is int i)
+			{
+				var mod = Mods.FirstOrDefault(m => m.Name == dataForSelector_Mods[i].Label);
+				if (mod.Name != null)
+				{
+					selectedModId = mod.PackageId;
+					selectedModName = mod.Name;
+					CurrentLister.RebuildCache(selectedModId);
+				}
+			}
+			else
+			{
+				string typeName = idx.GetType()?.Name ?? "null";
+				Verse.Log.Error($"[{ResearchConnector.modName}] Unexpected 'idx' value in mod selector: [{idx}]:[{typeName}]. Please report it to mod's author.");
+			}
+		}
+
+		private void OnTypeSelect(int? idx)
+		{
+			if (idx is int i)
+			{
+				_currentType = (ListerType)i;
+				_currentLister = null;      // Force rebuild @ next access
+			}
+			else
+			{
+				string typeName = idx.GetType()?.Name ?? "null";
+				Verse.Log.Error($"[{ResearchConnector.modName}] Unexpected 'idx' value in mod selector: [{idx}]:[{typeName}]. Please report it to mod's author.");
+			}
 		}
 	}
 }

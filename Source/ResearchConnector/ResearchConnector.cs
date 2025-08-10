@@ -6,6 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Verse;
 
+using static ResearchConnector.Utils;
+using static ResearchConnector.Utils_Data;
+
 namespace ResearchConnector
 {
 	public enum ListerType { Building, Item, Research /*, Research, Items */ }
@@ -40,6 +43,37 @@ namespace ResearchConnector
 			File.WriteAllText(logFile, "[ResearchConnector] Debug start\n");    //create/rewrite file
 #endif
 
+#if DEBUG
+			int maxL1, maxL2;
+
+			// Mods
+			var mods = LoadedModManager.RunningModsListForReading
+				.Select(mod => (mod.PackageId, mod.Name))
+				.OrderBy(mod => mod.Name)
+				.ToList();
+			maxL1 = Math.Min(30, mods.Max(m => m.PackageId.Length));
+			foreach (var mod in mods)
+			{
+				LogNL($"[Mod] ID[{mod.PackageId}]{TabsAfter(mod.PackageId.Length, maxL1)}Name[{mod.Name}]");
+			}
+			LogNL("");
+
+			// Buildings
+			List<ThingDef> buildings = GetBuildingsList();
+			//maxL1 = Math.Min(20, buildings.Max(def => def.defName.Length));
+			//maxL2 = Math.Min(25, buildings.Max(def => def.label.Length));
+			//foreach (var def in buildings)
+			//{
+			//	Utils.LogNL($"[Building] Def[{def.defName}]{TabsAfter(def.defName.Length, maxL1)}" +
+			//		$"Label[{def.label}]{TabsAfter(def.label.Length, maxL2)}Mod[{def.modContentPack?.PackageId}]");
+
+			//	// Tags
+			//	//DisplayBuildingTags(def);
+
+			//	// Comps
+			//	//DisplayComps(def);
+			//}
+
 			// Find item without modContentPack
 			// Well, there are some items without this info. No idea why. For example - VVE_GarageCabinet
 			var list = DefDatabase<ThingDef>.AllDefsListForReading
@@ -47,14 +81,14 @@ namespace ResearchConnector
 			foreach (var def in list)
 			{
 				var pack = def.modContentPack;
-				if ( pack == null )
+				if (pack == null)
 				{
-					Utils.LogNL($"No-mod item: {def.defName}");
+					//Utils.LogNL($"No-mod item: {def.defName}");
 				}
 				else
 				{
 					var pid = pack.PackageId;
-					if ( pid != pid.ToLowerInvariant())
+					if (pid != pid.ToLowerInvariant())
 					{
 						Utils.LogNL($"Case-mismatch mod ID: {pid} (item: {def.defName})");
 					}
@@ -90,9 +124,9 @@ namespace ResearchConnector
 			//}
 
 			// Weapons
-			//var weapons = DefDatabase<ThingDef>.AllDefsListForReading
-			//	.Where(def => def.IsWeapon)
-			//	.ToList();
+			var weapons = DefDatabase<ThingDef>.AllDefsListForReading
+				.Where(def => def.IsWeapon)
+				.ToList();
 			//foreach (var def in weapons)
 			//{
 			//	Utils.LogNL($"Weapon[{def.label}] Def[{def.defName}]");
@@ -121,6 +155,12 @@ namespace ResearchConnector
 			//		Utils.LogNL($"");
 			//	}
 			//}
+#endif
 		}
+
+		
+
+
+
 	}
 }

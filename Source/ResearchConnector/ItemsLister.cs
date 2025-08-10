@@ -28,7 +28,7 @@ namespace ResearchConnector
 
 		protected override float GetRowHeight(ThingDef def)
 		{
-			return GUI_Utils.rowHeight;
+			return Utils_GUI.rowHeight;
 		}
 	}
 }

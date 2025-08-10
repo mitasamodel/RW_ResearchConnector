@@ -11,7 +11,7 @@ namespace ResearchConnector
 	public class BuildingsLister : BaseLister<ThingDef>
 	{
 		private ThingDef _selected = null;
-		private float _selectedRowHeight = 3f * GUI_Utils.rowHeight;
+		private float _selectedRowHeight = 3f * Utils_GUI.rowHeight;
 
 		public BuildingsLister(string modId = null) : base(modId) { }
 		private Dictionary<string, ThingDef> DefDict
@@ -32,7 +32,7 @@ namespace ResearchConnector
 			}
 
 			Widgets.DrawHighlightIfMouseover(rowRect);
-			Widgets.Label(new Rect(rowRect.x, rowRect.y, rowRect.width, GUI_Utils.rowHeight), def.label);
+			Widgets.Label(new Rect(rowRect.x, rowRect.y, rowRect.width, Utils_GUI.rowHeight), def.label);
 			if (def == _selected)
 			{
 
@@ -41,15 +41,15 @@ namespace ResearchConnector
 				Text.Anchor = TextAnchor.UpperLeft;
 				Text.WordWrap = false;
 				// clip the text
-				var defRect = new Rect(rowRect.x, rowRect.y + GUI_Utils.rowHeight, rowRect.width, GUI_Utils.rowHeight);
+				var defRect = new Rect(rowRect.x, rowRect.y + Utils_GUI.rowHeight, rowRect.width, Utils_GUI.rowHeight);
 				GUI.BeginGroup(defRect);
-				Widgets.Label(new Rect(0f, 0f, 10000f, GUI_Utils.rowHeight), " -Def: " + def.defName);
+				Widgets.Label(new Rect(0f, 0f, 10000f, Utils_GUI.rowHeight), " -Def: " + def.defName);
 				GUI.EndGroup();
 				TooltipHandler.TipRegion(defRect, def.defName);
 				Text.WordWrap = wrap;
 				Text.Anchor = anchor;
 
-				Widgets.Label(new Rect(rowRect.x, rowRect.y + 2 * GUI_Utils.rowHeight, rowRect.width, GUI_Utils.rowHeight), " -Cat: " + def.category.ToString());
+				Widgets.Label(new Rect(rowRect.x, rowRect.y + 2 * Utils_GUI.rowHeight, rowRect.width, Utils_GUI.rowHeight), " -Cat: " + def.category.ToString());
 			}
 			if (Widgets.ButtonInvisible(rowRect)) _selected = def;
 		}
@@ -62,7 +62,7 @@ namespace ResearchConnector
 
 		protected override float GetRowHeight(ThingDef def)
 		{
-			return def == _selected ? _selectedRowHeight : GUI_Utils.rowHeight;
+			return def == _selected ? _selectedRowHeight : Utils_GUI.rowHeight;
 		}
 	}
 }

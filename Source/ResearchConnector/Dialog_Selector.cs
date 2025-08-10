@@ -23,10 +23,13 @@ namespace ResearchConnector
 
 	public class Dialog_Selector : Window
 	{
-		private readonly float rowH = GUI_Utils.rowHeight;
-		private readonly float scrollW = GUI_Utils.scrollWidth;
+		private readonly float rowH = Utils_GUI.rowHeight;
+		private readonly float scrollW = Utils_GUI.scrollWidth;
 
 		public override Vector2 InitialSize => new Vector2(500f, 600f);
+		
+		private Rect? _anchorScreenRect;    // Screen-space rect of the control that opened this dialog (optional)
+
 		private readonly List<SelectorRow> _inputList;
 		private List<int> _filteredIndexes;
 		private Vector2 _scroll = Vector2.zero;
@@ -38,10 +41,10 @@ namespace ResearchConnector
 		private string _search = "";
 
 		public Dialog_Selector(List<SelectorRow> inputList)
-			: this(inputList, null, Vector2.zero, null) { }
+			: this(inputList, null, Vector2.zero) { }
 		public Dialog_Selector(List<SelectorRow> inputList, Action<int?> onSelect)
-			: this(inputList, onSelect, Vector2.zero, null) { }
-		public Dialog_Selector(List<SelectorRow> inputList, Action<int?> onSelect, Vector2 scroll, Action<Vector2> onCloseScroll)
+			: this(inputList, onSelect, Vector2.zero) { }
+		public Dialog_Selector(List<SelectorRow> inputList, Action<int?> onSelect, Vector2 scroll, Action<Vector2> onCloseScroll = null, Rect? anchorScreenRect = null)
 		{
 			forcePause = true;
 			absorbInputAroundWindow = true;
@@ -53,6 +56,7 @@ namespace ResearchConnector
 			_onSelect = onSelect;
 			_scroll = scroll;
 			_onCloseScroll = onCloseScroll;
+			_anchorScreenRect = anchorScreenRect;
 
 			UpdateFilter();
 		}
@@ -79,7 +83,7 @@ namespace ResearchConnector
 			foreach (var idx in indexesList)
 			{
 				var item = _inputList[idx];
-				Rect rowRect = new Rect(0, curY, contentRect.width, GUI_Utils.rowHeight);
+				Rect rowRect = new Rect(0, curY, contentRect.width, Utils_GUI.rowHeight);
 				Widgets.DrawHighlightIfMouseover(rowRect);
 				Widgets.Label(rowRect, item.Label);
 				if (Widgets.ButtonInvisible(rowRect))
@@ -88,7 +92,7 @@ namespace ResearchConnector
 					Close();
 				}
 
-				curY += GUI_Utils.rowHeight;
+				curY += Utils_GUI.rowHeight;
 			}
 			Widgets.EndScrollView();
 		}
@@ -114,6 +118,29 @@ namespace ResearchConnector
 		{
 			base.PreClose();
 			_onCloseScroll?.Invoke(_scroll);
+		}
+
+		// Position the dialog relative to the anchor if provided.
+		protected override void SetInitialSizeAndPosition()
+		{
+			var size = InitialSize;
+			if (_anchorScreenRect is Rect r)
+			{
+				float x = r.x + 18f;
+				float y = r.y + 18f;
+
+				// (nice to have) clamp to screen
+				x = Mathf.Clamp(x, 0f, UI.screenWidth - size.x);
+				y = Mathf.Clamp(y, 0f, UI.screenHeight - size.y);
+
+				windowRect = new Rect(x, y, size.x, size.y);
+				return;
+			}
+			else
+			{
+				// Fallback to default centering
+				base.SetInitialSizeAndPosition();
+			}
 		}
 	}
 }
