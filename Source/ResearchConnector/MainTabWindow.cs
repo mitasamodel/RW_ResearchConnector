@@ -27,9 +27,13 @@ namespace ResearchConnector
 	public class Window_ResearchConnector : Window
 	{
 		private readonly List<(string PackageId, string Name)> Mods;
+
 		private readonly List<SelectorRow> dataForSelector_Mods;
+
 		private readonly List<SelectorRow> dataForSelector_Type;
+
 		private readonly ResearchToAssignLister researchesToAssign;
+
 		private readonly ResearchAssignedLister assigned;
 
 		const float windowMargin = 18f;
@@ -37,8 +41,8 @@ namespace ResearchConnector
 		static float verticalGap = 20f;
 		[TweakValue("0_MY", 200f, 500f)]
 		static float leftColumnWidth = 300f;
-		[TweakValue("0_MY", 200f, 500f)]
-		static float middleColumnWidth = 300f;
+		[TweakValue("0_MY", 100f, 300f)]
+		static float middleColumnWidth = 200f;
 		[TweakValue("0_MY", 100f, 300f)]
 		static float rightColumnWidth = 200f;
 		[TweakValue("0_MY", 400f, 1200f)]
@@ -50,8 +54,8 @@ namespace ResearchConnector
 
 		// Mod selection
 		// Static fields, so the window will save the selected items between sessions
-		private static string selectedModId = "ludeon.rimworld";
-		private static string selectedModName = "Core";
+		private static string selectedModId;
+		private static string selectedModName;
 		private static Vector2 scrollPositionModSelect = Vector2.zero;
 
 		// Type selection
@@ -132,6 +136,9 @@ namespace ResearchConnector
 				.OrderBy(mod => mod.Name)
 				.ToList());
 
+			selectedModId = "=Everything=";
+			selectedModName = Mods_GetNameById(selectedModId);
+
 			// Packages for lister
 			dataForSelector_Mods = Mods.Select(m => new SelectorRow(m.Name, m.PackageId, m.PackageId)).ToList();
 			dataForSelector_Type = Enum.GetValues(typeof(ListerType))
@@ -173,13 +180,13 @@ namespace ResearchConnector
 			// Middle column. List of assigned researches
 			assigned.Draw(middleColumnRect, CurrentLister);
 
-			// Right column. List of researches
+			// Right column. List of all researches
 			researchesToAssign.Draw(rightColumnRect);
 		}
 
 		private void OnRemoveResearch(ResearchProjectDef resDef)
 		{
-			if ( resDef == null ) return;
+			if (resDef == null) return;
 			var def = CurrentLister.SelectedDef();
 			if (def == null) return;
 
@@ -197,7 +204,7 @@ namespace ResearchConnector
 
 		private void RemoveResearchHyperling(ThingDef def, ResearchProjectDef resDef)
 		{
-			if (def == null ) return;
+			if (def == null) return;
 			if (resDef == null) return;
 			if (def.descriptionHyperlinks == null) return;
 			def.descriptionHyperlinks.RemoveAll(link => link.def == resDef);
@@ -296,6 +303,7 @@ namespace ResearchConnector
 			}
 		}
 
-
+		private string Mods_GetIdByName(string modName) => Mods.FirstOrDefault(m => m.Name == modName).PackageId;
+		private string Mods_GetNameById(string modId) => Mods.FirstOrDefault(m => m.PackageId == modId).Name;
 	}
 }
