@@ -197,6 +197,7 @@ namespace ResearchConnector
 
 				thingDef.researchPrerequisites.Remove(resDef);
 				RemoveResearchHyperling(thingDef, resDef);
+				ResearchCacheInvalidate.InvalidateProject(resDef);
 			}
 			else
 				Utils.LogNL($"[Not-ThingDef] {def.defName}");
@@ -238,6 +239,7 @@ namespace ResearchConnector
 					{
 						thingDef.researchPrerequisites.Add(research);
 						AddResearchHyperlink(thingDef, research);
+						ResearchCacheInvalidate.InvalidateProject(research);
 					}
 				}
 				else

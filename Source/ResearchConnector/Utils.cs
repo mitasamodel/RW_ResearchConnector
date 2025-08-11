@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO;
-using System.Security.Policy;
 
 namespace ResearchConnector
 {
@@ -53,6 +54,11 @@ namespace ResearchConnector
 #if DEBUG
 			File.AppendAllText(ResearchConnector.logFile, str + "\n");
 #endif
+		}
+
+		public static string CurrentClassName([System.Runtime.CompilerServices.CallerMemberName] string caller = "")
+		{
+			return MethodBase.GetCurrentMethod().DeclaringType.Name;
 		}
 	}
 }

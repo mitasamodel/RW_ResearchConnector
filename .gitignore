@@ -4,3 +4,4 @@ obj/
 bin/
 Source/packages/
 Assemblies/
+/Source/**/*.zip
