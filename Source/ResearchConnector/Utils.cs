@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ResearchConnector
 {
@@ -52,13 +53,8 @@ namespace ResearchConnector
 		public static void LogNL(string str)
 		{
 #if DEBUG
-			File.AppendAllText(ResearchConnector.logFile, str + "\n");
+			Log(str + "\n");
 #endif
-		}
-
-		public static string CurrentClassName([System.Runtime.CompilerServices.CallerMemberName] string caller = "")
-		{
-			return MethodBase.GetCurrentMethod().DeclaringType.Name;
 		}
 	}
 }
