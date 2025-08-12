@@ -170,6 +170,7 @@ namespace ResearchConnector
 
 			// Type selection
 			curY += DrawTypeSelector(new Rect(0f, curY, inRect.width, rowHeight));
+			curY += rowHeight;
 
 			//Main area. Split into 3 columns
 			Rect mainAreaRect = new Rect(0f, curY, inRect.width, inRect.height - curY);
@@ -182,13 +183,19 @@ namespace ResearchConnector
 			//Widgets.DrawBox(middleColumnRect);
 			//Widgets.DrawBox(rightColumnRect);
 
+			Widgets.DrawLineHorizontal(mainAreaRect.x, mainAreaRect.y, mainAreaRect.width, Color.grey);
+
 			// Left column. List of things in selected Type
 			Utils_GUI.LabelCentered(new Rect(leftColumnRect.x, leftColumnRect.y, leftColumnRect.width, rowHeight), GetPlural(_currentType));
 			CurrentLister.Draw(new Rect(leftColumnRect.x, leftColumnRect.y + rowHeight, leftColumnRect.width, leftColumnRect.height - rowHeight));
 
+			Utils_GUI.DrawLineVertical(leftColumnRect.xMax + verticalGap / 2, mainAreaRect.y, mainAreaRect.height, Color.grey);
+
 			// Middle column. List of assigned research
 			Utils_GUI.LabelCentered(new Rect(middleColumnRect.x, middleColumnRect.y, middleColumnRect.width, rowHeight), "Assigned research");
 			assigned.Draw(new Rect(middleColumnRect.x, middleColumnRect.y + rowHeight, middleColumnRect.width, middleColumnRect.height - rowHeight), CurrentLister);
+
+			Utils_GUI.DrawLineVertical(middleColumnRect.xMax + verticalGap / 2, mainAreaRect.y, mainAreaRect.height, Color.grey);
 
 			// Right column. List of all research
 			Utils_GUI.LabelCentered(new Rect(rightColumnRect.x, rightColumnRect.y, rightColumnRect.width, rowHeight), "All research");

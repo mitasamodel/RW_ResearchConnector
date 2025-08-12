@@ -26,24 +26,27 @@ namespace ResearchConnector
 				var resList = (simpleDef as ThingDef)?.researchPrerequisites
 					?? (simpleDef as RecipeDef)?.researchPrerequisites;
 
-				// For info
-				// RecipeDef can have both - single research and list. 
-				// If there is a list, then list "wins". However, it needs to be properly checked here
-
-				ResearchProjectDef toRemove = null;
-				Rect rowRect = inRect;
-				rowRect.height = Utils_GUI.rowHeight;
-				foreach (var res in resList)
+				if (resList != null)
 				{
-					Widgets.DrawHighlightIfMouseover(rowRect);
-					Widgets.Label(rowRect, res.label);
-					if (Widgets.ButtonInvisible(rowRect))
-						toRemove = res;
-					rowRect.y += Utils_GUI.rowHeight;
-				}
+					// For info
+					// RecipeDef can have both - single research and list. 
+					// If there is a list, then list "wins". However, it needs to be properly checked here
 
-				if (toRemove != null)
-					_onClick?.Invoke(toRemove);
+					ResearchProjectDef toRemove = null;
+					Rect rowRect = inRect;
+					rowRect.height = Utils_GUI.rowHeight;
+					foreach (var res in resList)
+					{
+						Widgets.DrawHighlightIfMouseover(rowRect);
+						Widgets.Label(rowRect, res.label);
+						if (Widgets.ButtonInvisible(rowRect))
+							toRemove = res;
+						rowRect.y += Utils_GUI.rowHeight;
+					}
+
+					if (toRemove != null)
+						_onClick?.Invoke(toRemove);
+				}
 			}
 
 		}

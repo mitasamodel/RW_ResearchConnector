@@ -48,7 +48,7 @@ namespace ResearchConnector
 					return h;
 				}
 			}
-			public override string ToString() => $"{def}::{research}";
+			public override string ToString() => $"{type}::{def}::{research}";
 		}
 
 		// Keep values only in {-1, +1}. When a transition hits 0, we remove the entry.
@@ -114,6 +114,7 @@ namespace ResearchConnector
 		}
 		public struct Entry
 		{
+			public string Type;
 			public string ThingDefName;      // e.g. "Steel_LongSword"
 			public string ResearchDefName;   // e.g. "Smithing"
 			public sbyte Delta;             // +1 add, -1 remove
@@ -126,7 +127,7 @@ namespace ResearchConnector
 		public static IEnumerable<Entry> Enumerate()
 		{
 			foreach (var kv in _net)
-				yield return new Entry { ThingDefName = kv.Key.def, ResearchDefName = kv.Key.research, Delta = kv.Value };
+				yield return new Entry { Type = kv.Key.type, ThingDefName = kv.Key.def, ResearchDefName = kv.Key.research, Delta = kv.Value };
 		}
 
 		public static void ListAll()

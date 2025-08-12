@@ -43,5 +43,10 @@ namespace ResearchConnector
 			Widgets.Label(inRect, label);
 			Text.Anchor = oldAnchor;
 		}
+
+		public static void DrawLineVertical(float x, float y, float length, Color color)
+		{
+			Widgets.DrawBoxSolid(new Rect(x, y, 1f, length), color);
+		}
 	}
 }
