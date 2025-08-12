@@ -13,10 +13,10 @@ namespace ResearchConnector
 	public static class Utils
 	{
 		/// <summary>
-		/// Returns string consisted of tabs
+		/// Returns string consisted of spaces
 		/// </summary>
 		/// <param name="strLength">Original string length</param>
-		/// <param name="maxLength">Max length to add up tabs</param>
+		/// <param name="maxLength">Max length to add up spaces</param>
 		/// <returns></returns>
 		public static string TabsAfter(int strLength, int maxLength)
 		{
@@ -55,6 +55,12 @@ namespace ResearchConnector
 #if DEBUG
 			Log(str + "\n");
 #endif
+		}
+		public static bool AddIfNotExists<T>(this List<T> list, T item)
+		{
+			if (list.Contains(item)) return false;
+			list.Add(item);
+			return true;
 		}
 	}
 }

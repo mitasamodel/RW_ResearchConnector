@@ -10,6 +10,7 @@
     <RootNamespace>ResearchConnector</RootNamespace>
     <AssemblyName>ResearchConnector</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+	<LangVersion>8.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -58,19 +59,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseLister.cs" />
-    <Compile Include="BuildingsLister.cs" />
+    <Compile Include="ActionsLogger.cs" />
+    <Compile Include="DefExtensions.cs" />
+    <Compile Include="Listers\BaseLister.cs" />
+    <Compile Include="Listers\BuildingsLister.cs" />
     <Compile Include="Dialog_Selector.cs" />
-    <Compile Include="ResearchAssignedLister.cs" />
+    <Compile Include="Listers\RecipesLister.cs" />
+    <Compile Include="Listers\ResearchAssignedLister.cs" />
     <Compile Include="ResearchCacheInvalidate.cs" />
-    <Compile Include="ResearchToAssignLister.cs" />
+    <Compile Include="Listers\ResearchToAssignLister.cs" />
     <Compile Include="Utils_GUI.cs" />
-    <Compile Include="ILister.cs" />
-    <Compile Include="ItemsLister.cs" />
+    <Compile Include="Listers\ILister.cs" />
+    <Compile Include="Listers\ItemsLister.cs" />
     <Compile Include="MainTabWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResearchConnector.cs" />
-    <Compile Include="ResearchLister.cs" />
+    <Compile Include="Listers\ResearchLister.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Utils_Data.cs" />
   </ItemGroup>

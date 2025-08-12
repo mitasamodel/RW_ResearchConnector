@@ -21,12 +21,19 @@ namespace ResearchConnector
 		public void Draw(Rect inRect, ILister lister)
 		{
 			var simpleDef = lister.SelectedDef();
-			if (simpleDef is ThingDef def && def.researchPrerequisites != null )
+			if (simpleDef is ThingDef || simpleDef is RecipeDef)
 			{
+				var resList = (simpleDef as ThingDef)?.researchPrerequisites
+					?? (simpleDef as RecipeDef)?.researchPrerequisites;
+
+				// For info
+				// RecipeDef can have both - single research and list. 
+				// If there is a list, then list "wins". However, it needs to be properly checked here
+
 				ResearchProjectDef toRemove = null;
 				Rect rowRect = inRect;
 				rowRect.height = Utils_GUI.rowHeight;
-				foreach(var res in  def.researchPrerequisites)
+				foreach (var res in resList)
 				{
 					Widgets.DrawHighlightIfMouseover(rowRect);
 					Widgets.Label(rowRect, res.label);
@@ -35,7 +42,7 @@ namespace ResearchConnector
 					rowRect.y += Utils_GUI.rowHeight;
 				}
 
-				if ( toRemove != null )
+				if (toRemove != null)
 					_onClick?.Invoke(toRemove);
 			}
 

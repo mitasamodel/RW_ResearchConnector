@@ -10,7 +10,7 @@ namespace ResearchConnector
 {
 	public class ItemsLister : BaseLister<ThingDef>
 	{
-		private ThingDef _selected;
+		private ThingDef _selected = null;
 		public ItemsLister(string modId = null) : base(modId)
 		{
 		}
@@ -24,6 +24,10 @@ namespace ResearchConnector
 
 		protected override void DrawRow(Rect rowRect, ThingDef def)
 		{
+			if ( def == _selected)
+			{
+				Widgets.DrawBoxSolid(rowRect, new Color32(144, 97, 29, 128));
+			}
 			Widgets.DrawHighlightIfMouseover(rowRect);
 			Widgets.Label(rowRect, def.label);
 			if (Widgets.ButtonInvisible(rowRect)) _selected = def;

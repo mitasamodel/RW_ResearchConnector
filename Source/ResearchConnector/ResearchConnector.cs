@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ResearchConnector.Listers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,7 +12,7 @@ using static ResearchConnector.Utils_Data;
 
 namespace ResearchConnector
 {
-	public enum ListerType { Building, Item, Research /*, Research, Items */ }
+	public enum ListerType { Building, Item, Research, Recipe /*, Research, Items */ }
 
 	[StaticConstructorOnStartup]
 	public static class ResearchConnector
@@ -35,7 +36,18 @@ namespace ResearchConnector
 			{ListerType.Building, modId => new BuildingsLister(modId) },
 			{ListerType.Research, modId => new ResearchLister(modId) },
 			{ListerType.Item, modId => new ItemsLister(modId) },
+			{ListerType.Recipe, modId => new RecipesLister(modId) },
 		};
+
+		internal static readonly Dictionary<ListerType, string> DictPlural = new Dictionary<ListerType, string>
+		{
+			{ListerType.Building, "Buildings" },
+			{ListerType.Research, "Research" },
+			{ListerType.Item, "Items" },
+			{ListerType.Recipe, "Recipes" },
+		};
+
+
 
 		static ResearchConnector()
 		{
@@ -164,7 +176,7 @@ namespace ResearchConnector
 #endif
 		}
 
-		
+
 
 
 

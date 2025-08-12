@@ -29,11 +29,19 @@ namespace ResearchConnector
 			Rect selectRect = new Rect(labelRect.xMax, inRect.y, inRect.width - labelRect.xMax, rowHeight);
 			Widgets.DrawHighlightIfMouseover(selectRect);
 			Widgets.Label(selectRect, "▼ " + (selectionString ?? selectionDefString));
-			Widgets.DrawBox(selectRect);
+			//Widgets.DrawBox(selectRect);
 			if (Widgets.ButtonInvisible(selectRect))
 			{
 				Find.WindowStack.Add(makeWindow());
 			}
+		}
+
+		public static void LabelCentered(Rect inRect, string label)
+		{
+			var oldAnchor = Text.Anchor;
+			Text.Anchor = TextAnchor.MiddleCenter;
+			Widgets.Label(inRect, label);
+			Text.Anchor = oldAnchor;
 		}
 	}
 }

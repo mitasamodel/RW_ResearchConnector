@@ -18,7 +18,7 @@ namespace ResearchConnector
 		static readonly FieldInfo F_Desc = typeof(ResearchProjectDef)
 			.GetField("cachedDescription", BindingFlags.Instance | BindingFlags.NonPublic);
 
-		static readonly string _className = nameof(ResearchCacheInvalidate);
+		//static readonly string _className = nameof(ResearchCacheInvalidate);
 
 		/// <summary>
 		/// Invalidate only the specified ResearchProjectDefs (their UnlockedDefs + related UI caches).
@@ -34,9 +34,9 @@ namespace ResearchConnector
 		}
 		public static void InvalidateProject(ResearchProjectDef rp)
 		{
-#if DEBUG
-			Utils.LogNL($"[{_className}] Try invalidate [{rp?.defName}]");
-#endif
+//#if DEBUG
+//			Utils.LogNL($"[{_className}] Try invalidate [{rp?.defName}]");
+//#endif
 			if (rp == null) return;
 			F_Unlocked?.SetValue(rp, null);
 			F_Hyperlinks?.SetValue(rp, null);
