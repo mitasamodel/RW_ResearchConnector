@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using Verse;
 
 using static ResearchConnector.Utils;
@@ -18,7 +19,10 @@ namespace ResearchConnector
 	public static class ResearchConnector
 	{
 		internal const string modName = "ResearchConnector";
-		static public readonly string logFile = @Environment.CurrentDirectory + @"\Mods\ResearchConnector.log";
+		public static readonly string logFile = Path.Combine(Application.persistentDataPath, "DevOutput", modName, "ResearchConnector.log");
+
+
+
 
 		// Dictionary. Key is an enum-item for selection
 		// Value is a pointer to a function, which takes 1 value as input (type: string) and returns 1 value (type: ILister)
@@ -52,6 +56,9 @@ namespace ResearchConnector
 		static ResearchConnector()
 		{
 #if DEBUG
+			var dir = Path.GetDirectoryName(logFile);
+			if (!string.IsNullOrEmpty(dir))
+				Directory.CreateDirectory(dir);
 			File.WriteAllText(logFile, "[ResearchConnector] Debug start\n");    //create/rewrite file
 #endif
 

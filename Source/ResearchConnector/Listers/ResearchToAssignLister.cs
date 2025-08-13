@@ -11,9 +11,9 @@ namespace ResearchConnector
 	public class ResearchToAssignLister : BaseLister<ResearchProjectDef>
 	{
 		private readonly float rowHeight = Utils_GUI.rowHeight;
-		private Action<Def> _onClick;
+		private Action<ResearchProjectDef> _onClick;
 
-		public ResearchToAssignLister(Action<Def> onClick)
+		public ResearchToAssignLister(Action<ResearchProjectDef> onClick)
 		{
 			_onClick = onClick;     // Method to be called on click
 			RebuildCache("=Everything=");       // Always all data displayed

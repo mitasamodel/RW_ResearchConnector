@@ -234,40 +234,17 @@ namespace ResearchConnector
 			var def = CurrentLister.SelectedDef();
 			if (def == null) return;
 
-			// Currently only for Things
-			if (def is ThingDef thingDef)
-			{
-				if (thingDef.researchPrerequisites == null) return;
-
-				thingDef.researchPrerequisites.Remove(resDef);
-				RemoveResearchHyperlink(thingDef, resDef);
-				ResearchCacheInvalidate.InvalidateProject(resDef);
-				ActionLogger.Remove(thingDef, resDef);
-			}
-			else
-				Utils.LogNL($"[Not-ThingDef] {def.defName}");
+			def.RemoveResearchPrerequisite(resDef);
 		}
 
-		private void RemoveResearchHyperlink(ThingDef def, ResearchProjectDef resDef)
+		private void OnAssignResearch(ResearchProjectDef resDef)
 		{
+			if (resDef == null) return;
+			var def = CurrentLister.SelectedDef();
 			if (def == null) return;
-			if (resDef == null) return;
-			if (def.descriptionHyperlinks == null) return;
-			def.descriptionHyperlinks.RemoveAll(link => link.def == resDef);
-		}
 
-		private void OnAssignResearch(Def resDef)
-		{
-			if (resDef == null) return;
-			if (resDef is ResearchProjectDef research)
-			{
-				var def = CurrentLister.SelectedDef();
-				if (def == null) return;
+			def.AddResearchPrerequisite(resDef);
 
-				def.AddResearchPrerequisite(research);
-			}
-			else
-				Verse.Log.Error($"[{ResearchConnector.modName}] Unexpected research type - not a researchDef: [{resDef.defName}]. Please report it to mod's author.");
 		}
 
 		private float DrawTypeSelector(Rect inRect)

@@ -25,15 +25,21 @@ namespace ResearchConnector
 			public readonly string type;
 			public readonly string def;
 			public readonly string research;
+			public readonly bool legacy;
 
-			public Key(string type, string def, string research)
+			public Key(string type, string def, string research, bool legacy)
 			{
 				this.type = type ?? "";
 				this.def = def ?? "";
 				this.research = research ?? "";
+				this.legacy = legacy;
 			}
 
-			public bool Equals(Key other) => type == other.type && def == other.def && research == other.research;
+			public bool Equals(Key other) => 
+				type == other.type && 
+				def == other.def && 
+				research == other.research && 
+				legacy == other.legacy;
 			public override bool Equals(object obj) => obj is Key k && Equals(k);
 			// Magical for me Method to generate hash code. Suggested by chatGPT
 			// More reading required. https://ericlippert.com/2011/02/28/guidelines-and-rules-for-gethashcode/
@@ -45,10 +51,11 @@ namespace ResearchConnector
 					h = h * 31 + (type?.GetHashCode() ?? 0);
 					h = h * 31 + (def?.GetHashCode() ?? 0);
 					h = h * 31 + (research?.GetHashCode() ?? 0);
+					h = h * 31 + legacy.GetHashCode();
 					return h;
 				}
 			}
-			public override string ToString() => $"{type}::{def}::{research}";
+			public override string ToString() => $"{type}::{def}::{research}::" + (legacy ? "[legacy]" : "");
 		}
 
 		// Keep values only in {-1, +1}. When a transition hits 0, we remove the entry.
@@ -56,10 +63,10 @@ namespace ResearchConnector
 
 		public static void Clear() => _net.Clear();
 
-		public static void Add(Def def, ResearchProjectDef research)
+		public static void Add(Def def, ResearchProjectDef research, bool legacy = false)
 		{
 			if (def == null || research == null) return;
-			var k = new Key(def.GetType().FullName, def.defName, research.defName);
+			var k = new Key(def.GetType().FullName, def.defName, research.defName, legacy);
 
 			if (_net.TryGetValue(k, out var cur))
 			{
@@ -79,13 +86,13 @@ namespace ResearchConnector
 
 		}
 
-		public static void Remove(Def def, ResearchProjectDef research)
+		public static void Remove(Def def, ResearchProjectDef research, bool legacy=false)
 		{
 //#if DEBUG
 //			Utils.Log($"[{_className}] Remove [{research?.defName}] from [{thing?.defName}]: ");
 //#endif
 			if (def == null || research == null) return;
-			var k = new Key(def.GetType().FullName, def.defName, research.defName);
+			var k = new Key(def.GetType().FullName, def.defName, research.defName, legacy);
 
 			if (_net.TryGetValue(k, out var cur))
 			{
@@ -118,6 +125,7 @@ namespace ResearchConnector
 			public string ThingDefName;      // e.g. "Steel_LongSword"
 			public string ResearchDefName;   // e.g. "Smithing"
 			public sbyte Delta;             // +1 add, -1 remove
+			public bool Legacy;              // true if this is a legacy action
 		}
 
 		/// <summary>True if anything still needs exporting.</summary>
@@ -127,7 +135,13 @@ namespace ResearchConnector
 		public static IEnumerable<Entry> Enumerate()
 		{
 			foreach (var kv in _net)
-				yield return new Entry { Type = kv.Key.type, ThingDefName = kv.Key.def, ResearchDefName = kv.Key.research, Delta = kv.Value };
+				yield return new Entry { 
+					Type = kv.Key.type, 
+					ThingDefName = kv.Key.def, 
+					ResearchDefName = kv.Key.research,
+					Legacy = kv.Key.legacy,
+					Delta = kv.Value,
+				};
 		}
 
 		public static void ListAll()
