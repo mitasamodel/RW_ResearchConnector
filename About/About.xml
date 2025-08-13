@@ -1,26 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-	<packageId>mitasamodel.rrsspatches</packageId>
-	<name>Research Reinvented: Stepping Stones - Patches</name>
+	<packageId>mitasamodel.researchconnector</packageId>
+	<name>Research Connector</name>
 	<author>mitasamodel</author>
-	<description>Patches some entites to fit into research.
-
-Buildings without prerequisites now will have them.
-Best experience with:
-
-Ludeon.RimWorld.Odyssey
-Vanilla Factions Expanded - Tribals [OskarPotocki.VFE.Tribals]
-
-</description>
+	<description>Manage research requirements for any item in the game.</description>
 	<supportedVersions>
 		<li>1.6</li>
 	</supportedVersions>
-	<modDependencies>
-		<li>
-			<packageId>PeteTimesSix.ResearchReinvented.SteppingStones</packageId>
-			<displayName>Research Reinvented: Stepping Stones</displayName>
-			<downloadUrl>https://github.com/PeteTimesSix/ResearchReinvented_SteppingStones/tree/main</downloadUrl>
-			<steamWorkshopUrl>steam://url/CommunityFilePage/2868389782</steamWorkshopUrl>
-		</li>
-	</modDependencies>
 </ModMetaData>
