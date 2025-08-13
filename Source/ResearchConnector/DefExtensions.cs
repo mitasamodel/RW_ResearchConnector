@@ -81,8 +81,8 @@ namespace ResearchConnector
 
 			if (changed)
 			{
-				def.RemoveResearchHyperlink(resDef);
-				resDef.RemoveResearchHyperlink(def);
+				def.RemoveDescriptionHyperlink(resDef);
+				resDef.RemoveDescriptionHyperlink(def);
 				ResearchCacheInvalidate.InvalidateProject(resDef);
 				ActionLogger.Remove(def, resDef);
 			}
@@ -98,7 +98,7 @@ namespace ResearchConnector
 				def.descriptionHyperlinks.Add(linkDef);
 
 		}
-		private static void RemoveResearchHyperlink(this Def def, Def linkDef)
+		private static void RemoveDescriptionHyperlink(this Def def, Def linkDef)
 		{
 			if (def == null || linkDef == null) return;
 			def.descriptionHyperlinks?.RemoveAll(link => link.def == linkDef);
