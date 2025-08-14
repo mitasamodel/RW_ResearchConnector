@@ -44,18 +44,6 @@ namespace ResearchConnector
 			return text.Length <= maxLength ? text : text.Substring(0, maxLength);
 		}
 
-		public static void Log(string str)
-		{
-#if DEBUG
-			File.AppendAllText(ResearchConnector.logFile, str);
-#endif
-		}
-		public static void LogNL(string str)
-		{
-#if DEBUG
-			Log(str + "\n");
-#endif
-		}
 		public static bool AddIfNotExists<T>(this List<T> list, T item)
 		{
 			if (list.Contains(item)) return false;

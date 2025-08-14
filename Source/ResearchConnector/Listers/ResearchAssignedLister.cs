@@ -11,29 +11,17 @@ using static ResearchConnector.Utils_Research;
 
 namespace ResearchConnector
 {
-	public enum ResearchPrereqSource
-	{
-		Legacy,    // researchPrerequisite
-		List       // researchPrerequisites
-	}
-
 	public class ResearchAssignedLister
 	{
-		private readonly Action<ResearchProjectDef> _onClick;
+		public ResearchAssignedLister() { }
 
-		public ResearchAssignedLister(Action<ResearchProjectDef> onClick)
-		{
-			_onClick = onClick;
-		}
-
-		public void Draw(Rect inRect, ILister lister)
+		public void Draw(Rect inRect, Def selectedDef)
 		{
 			List<ResPrereqList> resList;
-			var selectedDef = lister.SelectedDef();
 
 			if (selectedDef != null)
 			{
-				if ((resList = GetResearchPrerequisites(selectedDef)) != null)
+				if ((resList = GetAllResearchPrerequisites(selectedDef)) != null)
 				{
 					ResearchProjectDef toRemove = null;
 					Rect rowRect = inRect;
@@ -48,9 +36,17 @@ namespace ResearchConnector
 					}
 
 					if (toRemove != null)
-						_onClick?.Invoke(toRemove);
+						selectedDef.RemoveResearchPrerequisite(toRemove);
 				}
 			}
+		}
+
+		private void RemoveResearch(Def def, ResearchProjectDef resDef)
+		{
+			if (resDef == null) return;
+			if (def == null) return;
+
+			def.RemoveResearchPrerequisite(resDef);
 		}
 	}
 }

@@ -109,7 +109,7 @@ namespace ResearchConnector
 				default:
 					{
 #if DEBUG
-						Utils.LogNL($"[{_className}] No fields for Def[{def.defName}] Type[{def.GetType()}]");
+						Logger.LogOnce($"[{_className}] No fields for Def[{def.defName}] Type[{def.GetType()}]");
 #endif
 						return null;
 					}
@@ -131,7 +131,7 @@ namespace ResearchConnector
 					break;
 				default:
 #if DEBUG
-					Utils.LogNL($"[{_className}] No legacy field for Def[{def.defName}] Type[{def.GetType()}]");
+					Logger.LogOnce($"[{_className}] No legacy field for Def[{def.defName}] Type[{def.GetType()}]");
 #endif
 					break;
 			}
@@ -145,18 +145,11 @@ namespace ResearchConnector
 		public static ResearchProjectDef GetLegacyResearchPrerequisite(this Def def)
 		{
 			if (def == null) return null;
-			switch (def)
+			return def switch
 			{
-				case RecipeDef d:
-					return d.researchPrerequisite;
-				default:
-					{
-#if DEBUG
-						Utils.LogNL($"[{_className}] No legacy field for Def[{def.defName}] Type[{def.GetType()}]");
-#endif
-						return null;
-					}
-			}
+				RecipeDef d => d.researchPrerequisite,
+				_ => null,
+			};
 		}
 
 		public static bool CanHaveResearchPrerequisites(this Def def)

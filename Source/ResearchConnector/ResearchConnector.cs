@@ -80,9 +80,9 @@ namespace ResearchConnector
 			maxL1 = Math.Min(30, mods.Max(m => m.PackageId.Length));
 			foreach (var mod in mods)
 			{
-				LogNL($"[Mod] ID[{mod.PackageId}]{TabsAfter(mod.PackageId.Length, maxL1)}Name[{mod.Name}]");
+				Logger.LogNL($"[Mod] ID[{mod.PackageId}]{TabsAfter(mod.PackageId.Length, maxL1)}Name[{mod.Name}]");
 			}
-			LogNL("");
+			Logger.LogNL("");
 
 			// Buildings
 			List<ThingDef> buildings = GetBuildingsList();
@@ -116,7 +116,7 @@ namespace ResearchConnector
 					var pid = pack.PackageId;
 					if (pid != pid.ToLowerInvariant())
 					{
-						Utils.LogNL($"Case-mismatch mod ID: {pid} (item: {def.defName})");
+						Logger.LogNL($"Case-mismatch mod ID: {pid} (item: {def.defName})");
 					}
 				}
 			}

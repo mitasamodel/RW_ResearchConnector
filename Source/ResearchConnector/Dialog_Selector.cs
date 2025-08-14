@@ -110,7 +110,7 @@ namespace ResearchConnector
 				)
 				.ToList();
 #if DEBUG
-			Utils.LogNL($"[Dialog_Selector] Filter rebuilt. Was: {cnt}. New: {_filteredIndexes.Count}");
+			Logger.LogNL($"[Dialog_Selector] Filter rebuilt. Was: {cnt}. New: {_filteredIndexes.Count}");
 #endif
 		}
 

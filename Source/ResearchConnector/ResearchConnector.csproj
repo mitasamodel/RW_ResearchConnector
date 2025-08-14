@@ -66,6 +66,7 @@
     <Compile Include="Dialog_Selector.cs" />
     <Compile Include="Listers\RecipesLister.cs" />
     <Compile Include="Listers\ResearchAssignedLister.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="ResearchCacheInvalidate.cs" />
     <Compile Include="Listers\ResearchToAssignLister.cs" />
     <Compile Include="Utils_GUI.cs" />

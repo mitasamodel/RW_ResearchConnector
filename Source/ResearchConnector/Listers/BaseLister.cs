@@ -22,7 +22,7 @@ namespace ResearchConnector
 		public BaseLister(string modId = null)
 		{
 #if DEBUG
-			Utils.LogNL($"[BaseLister] Construct[{this.GetType().Name}] modId[{modId ?? "null"}]");
+			Logger.LogNL($"[BaseLister] Construct[{this.GetType().Name}] modId[{modId ?? "null"}]");
 #endif
 			_modId = modId;
 			RebuildCache(_modId);
@@ -101,7 +101,7 @@ namespace ResearchConnector
 			}
 			_defDict = null;
 #if DEBUG
-			Utils.LogNL($"[BaseLister] Cache rebuilt. Was: {cnt}. New: {_defList.Count}");
+			Logger.LogNL($"[BaseLister] Cache rebuilt. Was: {cnt}. New: {_defList.Count}");
 #endif
 			UpdateFilter();
 		}
@@ -115,7 +115,7 @@ namespace ResearchConnector
 				.Where(def => MatchesSearch(def, _search))
 				.ToList();
 #if DEBUG
-			Utils.LogNL($"[BaseLister] Filter rebuilt. Was: {cnt}. New: {_filteredList.Count}");
+			Logger.LogNL($"[BaseLister] Filter rebuilt. Was: {cnt}. New: {_filteredList.Count}");
 #endif
 		}
 

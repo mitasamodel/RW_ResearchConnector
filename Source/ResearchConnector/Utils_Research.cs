@@ -23,46 +23,33 @@ namespace ResearchConnector
 			}
 		}
 
-		public static List<ResPrereqList> GetResearchPrerequisites(Def def)
+		/// <summary>
+		/// Return list of all research prerequisites.
+		/// Markes as legacy if the ResearchProjectDef came from a single research prerequisite (researchPrerequisite).
+		/// </summary>
+		/// <param name="def"></param>
+		/// <returns></returns>
+		public static List<ResPrereqList> GetAllResearchPrerequisites(Def def)
 		{
 			if (def == null) return null;
-			List<ResPrereqList> resList = null;
+			List<ResPrereqList> resList = new List<ResPrereqList>();
 
-			switch (def)
+			// Legacy field: researchPrerequisite
+			if (def.GetLegacyResearchPrerequisite() is ResearchProjectDef legacyRes)
+				resList.Add(new ResPrereqList(legacyRes, true));
+
+			// List: researchPrerequisites
+			var list = def.GetOrInitResearchPrerequisitesList();
+			if (list != null)
 			{
-				case ThingDef thingDef:
-					if (thingDef.researchPrerequisites != null)
-					{
-						resList ??= new List<ResPrereqList>();
-						foreach (var rec in thingDef.researchPrerequisites)
-							resList.Add(new ResPrereqList(rec));
-					}
-					break;
-				case RecipeDef recipeDef:
-					// Check if recipeDef has a single research prerequisite.
-					if (recipeDef.researchPrerequisite != null)
-					{
-						resList ??= new List<ResPrereqList>();
-						resList.Add(new ResPrereqList(recipeDef.researchPrerequisite, true));
-					}
-
-					// Add a list of research prerequisites if exists.
-					if (recipeDef.researchPrerequisites != null)
-					{
-						resList ??= new List<ResPrereqList>();
-						foreach (var rec in recipeDef.researchPrerequisites)
-							resList.Add(new ResPrereqList(rec));
-					}
-					break;
-				default:
-#if DEBUG
-					Utils.LogNL($"[ResearchAssignedLister] GetResearchPrerequisites: Unsupported def type: {def.GetType().Name}");
-#endif
-					Verse.Log.Warning($"[{ResearchConnector.modName}] GetResearchPrerequisites: Yet unsupported def type: {def.GetType().Name}");
-					break;
+				foreach (var res in list)
+					resList.Add(new ResPrereqList(res));
 			}
 
-			return resList;
+			if (resList.Count > 0)
+				return resList;
+			else
+				return null;
 		}
 	}
 }

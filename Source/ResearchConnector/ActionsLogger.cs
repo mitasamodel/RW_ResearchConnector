@@ -22,7 +22,7 @@ namespace ResearchConnector
 			Add,
 			Remove,
 		}
-		private static readonly string _className = nameof(ActionLogger);
+		//private static readonly string _className = nameof(ActionLogger);
 
 		// Key is (thingDefName, researchDefName)
 		private readonly struct Key : IEquatable<Key>
@@ -71,9 +71,7 @@ namespace ResearchConnector
 		public static void Add(Def def, ResearchProjectDef research, bool legacy = false)
 		{
 			if (def == null || research == null) return;
-#if DEBUG
-			Utils.Log($"[{_className}] Add [{research?.defName}] to [{def?.defName}]: ");
-#endif
+
 			// Normal key
 			var k1 = new Key(def.GetType().FullName, def.defName, research.defName, legacy);
 			// Legacy-reversed key
@@ -84,24 +82,15 @@ namespace ResearchConnector
 				if (cur == ActionType.Remove)
 				{
 					_net.Remove(k1);    // cancels out
-#if DEBUG
-					Utils.LogNL("[]");
-#endif
 				}
 				else
 				{
 					_net[k1] = ActionType.Add;      // keep the same
-#if DEBUG
-					Utils.LogNL("[Add-keep]");
-#endif
 				}
 			}
 			else
 			{
 				_net[k1] = ActionType.Add;
-#if DEBUG
-				Utils.LogNL("[Add]");
-#endif
 			}
 		}
 
@@ -117,25 +106,16 @@ namespace ResearchConnector
 			{
 				if (cur == ActionType.Add)
 				{
-					_net.Remove(k);  // remove cancels pending add -> zero
-									 //#if DEBUG
-									 //					Utils.LogNL("[]");
-									 //#endif
+					_net.Remove(k);
 				}
 				else
 				{
-					_net[k] = ActionType.Remove;             // remains -1
-															 //#if DEBUG
-															 //					Utils.LogNL(_net[k].ToString());
-															 //#endif
+					_net[k] = ActionType.Remove;
 				}
 			}
 			else
 			{
 				_net[k] = ActionType.Remove;
-				//#if DEBUG
-				//				Utils.LogNL(_net[k].ToString());
-				//#endif
 			}
 		}
 		public struct Entry
@@ -169,7 +149,7 @@ namespace ResearchConnector
 #if DEBUG
 			foreach (var kv in _net)
 			{
-				Utils.LogNL($"{kv.Key}[{kv.Value}]");
+				Logger.LogNL($"{kv.Key}[{kv.Value}]");
 			}
 #endif
 		}

@@ -155,7 +155,7 @@ namespace ResearchConnector
 			researchesToAssign = new ResearchToAssignLister(OnAssignResearch);
 
 			// Assigned researches
-			assigned = new ResearchAssignedLister(OnRemoveResearch);
+			assigned = new ResearchAssignedLister();
 		}
 
 		public override void DoWindowContents(Rect inRect)
@@ -193,7 +193,7 @@ namespace ResearchConnector
 
 			// Middle column. List of assigned research
 			Utils_GUI.LabelCentered(new Rect(middleColumnRect.x, middleColumnRect.y, middleColumnRect.width, rowHeight), "Assigned research");
-			assigned.Draw(new Rect(middleColumnRect.x, middleColumnRect.y + rowHeight, middleColumnRect.width, middleColumnRect.height - rowHeight), CurrentLister);
+			assigned.Draw(new Rect(middleColumnRect.x, middleColumnRect.y + rowHeight, middleColumnRect.width, middleColumnRect.height - rowHeight), CurrentLister.SelectedDef());
 
 			Utils_GUI.DrawLineVertical(middleColumnRect.xMax + verticalGap / 2, mainAreaRect.y, mainAreaRect.height, Color.grey);
 
@@ -228,14 +228,14 @@ namespace ResearchConnector
 			return height;
 		}
 
-		private void OnRemoveResearch(ResearchProjectDef resDef)
-		{
-			if (resDef == null) return;
-			var def = CurrentLister.SelectedDef();
-			if (def == null) return;
+		//private void OnRemoveResearch(ResearchProjectDef resDef)
+		//{
+		//	if (resDef == null) return;
+		//	var def = CurrentLister.SelectedDef();
+		//	if (def == null) return;
 
-			def.RemoveResearchPrerequisite(resDef);
-		}
+		//	def.RemoveResearchPrerequisite(resDef);
+		//}
 
 		private void OnAssignResearch(ResearchProjectDef resDef)
 		{

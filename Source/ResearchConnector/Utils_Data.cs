@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Verse;
 
-using static ResearchConnector.Utils;
+using static ResearchConnector.Logger;
 
 namespace ResearchConnector
 {
