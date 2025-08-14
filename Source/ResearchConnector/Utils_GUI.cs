@@ -14,6 +14,18 @@ namespace ResearchConnector
 		public const float labelWidth = 80f;
 		public const float scrollWidth = 16f;
 
+		public static bool SetWrap(bool set)
+		{
+			var wrap = Text.WordWrap;
+			Text.WordWrap = set;
+			return wrap;
+		}
+
+		public static void RestoreWrap(bool wrap)
+		{
+			Text.WordWrap = wrap;
+		}
+
 		public static void LabelWithSelection(
 			Rect inRect,    // Parent Rect
 			string labelText,

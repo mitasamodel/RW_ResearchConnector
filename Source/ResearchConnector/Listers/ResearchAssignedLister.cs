@@ -7,8 +7,16 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
 
+using static ResearchConnector.Utils_Research;
+
 namespace ResearchConnector
 {
+	public enum ResearchPrereqSource
+	{
+		Legacy,    // researchPrerequisite
+		List       // researchPrerequisites
+	}
+
 	public class ResearchAssignedLister
 	{
 		private readonly Action<ResearchProjectDef> _onClick;
@@ -20,27 +28,22 @@ namespace ResearchConnector
 
 		public void Draw(Rect inRect, ILister lister)
 		{
-			var simpleDef = lister.SelectedDef();
-			if (simpleDef is ThingDef || simpleDef is RecipeDef)
+			List<ResPrereqList> resList;
+			var selectedDef = lister.SelectedDef();
+
+			if (selectedDef != null)
 			{
-				var resList = (simpleDef as ThingDef)?.researchPrerequisites
-					?? (simpleDef as RecipeDef)?.researchPrerequisites;
-
-				if (resList != null)
+				if ((resList = GetResearchPrerequisites(selectedDef)) != null)
 				{
-					// For info
-					// RecipeDef can have both - single research and list. 
-					// If there is a list, then list "wins". However, it needs to be properly checked here
-
 					ResearchProjectDef toRemove = null;
 					Rect rowRect = inRect;
 					rowRect.height = Utils_GUI.rowHeight;
 					foreach (var res in resList)
 					{
 						Widgets.DrawHighlightIfMouseover(rowRect);
-						Widgets.Label(rowRect, res.label);
+						Widgets.Label(rowRect, res.def.label);
 						if (Widgets.ButtonInvisible(rowRect))
-							toRemove = res;
+							toRemove = res.def;
 						rowRect.y += Utils_GUI.rowHeight;
 					}
 
@@ -48,7 +51,6 @@ namespace ResearchConnector
 						_onClick?.Invoke(toRemove);
 				}
 			}
-
 		}
 	}
 }

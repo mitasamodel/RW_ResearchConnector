@@ -40,7 +40,7 @@ namespace ResearchConnector
 		const float windowMargin = 18f;
 		[TweakValue("0_MY", 0f, 50f)]
 		static float verticalGap = 20f;
-		[TweakValue("0_MY", 200f, 500f)]
+		[TweakValue("0_MY", 100f, 500f)]
 		static float leftColumnWidth = 300f;
 		[TweakValue("0_MY", 100f, 300f)]
 		static float middleColumnWidth = 200f;

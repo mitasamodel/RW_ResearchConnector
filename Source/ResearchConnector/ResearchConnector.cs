@@ -68,8 +68,9 @@ namespace ResearchConnector
 #pragma warning restore CS0168 // Variable is declared but never used
 
 			// Some defs for future:
-			// PlantDef
+			// PlantDef -> sowResearchPrerequisites
 			// RecipeDef
+			// 
 
 			// Mods
 			var mods = LoadedModManager.RunningModsListForReading

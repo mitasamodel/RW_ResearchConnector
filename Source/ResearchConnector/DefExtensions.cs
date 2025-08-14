@@ -63,6 +63,7 @@ namespace ResearchConnector
 		{
 			if (def == null || resDef == null) return false;
 			bool changed = false;
+			bool legacy = false;
 
 			switch (def)
 			{
@@ -70,6 +71,12 @@ namespace ResearchConnector
 					changed |= d.researchPrerequisites?.RemoveAll(res => res == resDef) > 0;
 					break;
 				case RecipeDef d:
+					if ( d.researchPrerequisite == resDef )
+					{
+						d.researchPrerequisite = null;
+						legacy = true;
+						changed = true;
+					}
 					changed |= d.researchPrerequisites?.RemoveAll(res => res == resDef) > 0;
 					break;
 				default:
@@ -84,7 +91,7 @@ namespace ResearchConnector
 				def.RemoveDescriptionHyperlink(resDef);
 				resDef.RemoveDescriptionHyperlink(def);
 				ResearchCacheInvalidate.InvalidateProject(resDef);
-				ActionLogger.Remove(def, resDef);
+				ActionLogger.Remove(def, resDef, legacy);
 			}
 
 			return changed;

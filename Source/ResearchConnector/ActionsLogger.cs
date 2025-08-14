@@ -17,7 +17,12 @@ namespace ResearchConnector
 	/// </summary>
 	internal static class ActionLogger
 	{
-		//private static readonly string _className = nameof(ActionLogger);
+		public enum ActionType
+		{
+			Add,
+			Remove,
+		}
+		private static readonly string _className = nameof(ActionLogger);
 
 		// Key is (thingDefName, researchDefName)
 		private readonly struct Key : IEquatable<Key>
@@ -35,10 +40,10 @@ namespace ResearchConnector
 				this.legacy = legacy;
 			}
 
-			public bool Equals(Key other) => 
-				type == other.type && 
-				def == other.def && 
-				research == other.research && 
+			public bool Equals(Key other) =>
+				type == other.type &&
+				def == other.def &&
+				research == other.research &&
 				legacy == other.legacy;
 			public override bool Equals(object obj) => obj is Key k && Equals(k);
 			// Magical for me Method to generate hash code. Suggested by chatGPT
@@ -55,68 +60,82 @@ namespace ResearchConnector
 					return h;
 				}
 			}
-			public override string ToString() => $"{type}::{def}::{research}::" + (legacy ? "[legacy]" : "");
+			public override string ToString() => $"{type}::{def}::{research}::" + (legacy ? "{legacy}" : "");
 		}
 
-		// Keep values only in {-1, +1}. When a transition hits 0, we remove the entry.
-		private static readonly Dictionary<Key, sbyte> _net = new Dictionary<Key, sbyte>();
+		// Keep action list in a dictionary.
+		private static readonly Dictionary<Key, ActionType> _net = new Dictionary<Key, ActionType>();
 
 		public static void Clear() => _net.Clear();
 
 		public static void Add(Def def, ResearchProjectDef research, bool legacy = false)
 		{
 			if (def == null || research == null) return;
-			var k = new Key(def.GetType().FullName, def.defName, research.defName, legacy);
+#if DEBUG
+			Utils.Log($"[{_className}] Add [{research?.defName}] to [{def?.defName}]: ");
+#endif
+			// Normal key
+			var k1 = new Key(def.GetType().FullName, def.defName, research.defName, legacy);
+			// Legacy-reversed key
+			//var k2 = new Key(def.GetType().FullName, def.defName, research.defName, !legacy);
 
-			if (_net.TryGetValue(k, out var cur))
+			if (_net.TryGetValue(k1, out var cur))
 			{
-				if (cur == -1)
+				if (cur == ActionType.Remove)
 				{
-					_net.Remove(k); // remove cancels pending remove -> zero
+					_net.Remove(k1);    // cancels out
+#if DEBUG
+					Utils.LogNL("[]");
+#endif
 				}
 				else
 				{
-					_net[k] = 1;              // remains +1
+					_net[k1] = ActionType.Add;      // keep the same
+#if DEBUG
+					Utils.LogNL("[Add-keep]");
+#endif
 				}
 			}
 			else
 			{
-				_net[k] = 1;
+				_net[k1] = ActionType.Add;
+#if DEBUG
+				Utils.LogNL("[Add]");
+#endif
 			}
-
 		}
 
-		public static void Remove(Def def, ResearchProjectDef research, bool legacy=false)
+		public static void Remove(Def def, ResearchProjectDef research, bool legacy = false)
 		{
-//#if DEBUG
-//			Utils.Log($"[{_className}] Remove [{research?.defName}] from [{thing?.defName}]: ");
-//#endif
+			//#if DEBUG
+			//			Utils.Log($"[{_className}] Remove [{research?.defName}] from [{thing?.defName}]: ");
+			//#endif
 			if (def == null || research == null) return;
 			var k = new Key(def.GetType().FullName, def.defName, research.defName, legacy);
 
 			if (_net.TryGetValue(k, out var cur))
 			{
-				if (cur == 1)
+				if (cur == ActionType.Add)
 				{
 					_net.Remove(k);  // remove cancels pending add -> zero
-//#if DEBUG
-//					Utils.LogNL("[]");
-//#endif
+									 //#if DEBUG
+									 //					Utils.LogNL("[]");
+									 //#endif
 				}
 				else
 				{
-					_net[k] = -1;             // remains -1
-//#if DEBUG
-//					Utils.LogNL(_net[k].ToString());
-//#endif
+					_net[k] = ActionType.Remove;             // remains -1
+															 //#if DEBUG
+															 //					Utils.LogNL(_net[k].ToString());
+															 //#endif
 				}
 			}
 			else
 			{
-				_net[k] = -1;
-//#if DEBUG
-//				Utils.LogNL(_net[k].ToString());
-//#endif
+				_net[k] = ActionType.Remove;
+				//#if DEBUG
+				//				Utils.LogNL(_net[k].ToString());
+				//#endif
 			}
 		}
 		public struct Entry
@@ -124,7 +143,7 @@ namespace ResearchConnector
 			public string Type;
 			public string ThingDefName;      // e.g. "Steel_LongSword"
 			public string ResearchDefName;   // e.g. "Smithing"
-			public sbyte Delta;             // +1 add, -1 remove
+			public ActionType Action;
 			public bool Legacy;              // true if this is a legacy action
 		}
 
@@ -135,12 +154,13 @@ namespace ResearchConnector
 		public static IEnumerable<Entry> Enumerate()
 		{
 			foreach (var kv in _net)
-				yield return new Entry { 
-					Type = kv.Key.type, 
-					ThingDefName = kv.Key.def, 
+				yield return new Entry
+				{
+					Type = kv.Key.type,
+					ThingDefName = kv.Key.def,
 					ResearchDefName = kv.Key.research,
 					Legacy = kv.Key.legacy,
-					Delta = kv.Value,
+					Action = kv.Value,
 				};
 		}
 

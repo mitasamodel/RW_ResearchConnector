@@ -25,6 +25,8 @@ namespace ResearchConnector
 		}
 		protected override void DrawRow(Rect rowRect, ThingDef def)
 		{
+			bool wrap = Utils_GUI.SetWrap(false);
+
 			if (def == _selected)
 			{
 				rowRect.height = _selectedRowHeight;
@@ -36,22 +38,22 @@ namespace ResearchConnector
 			if (def == _selected)
 			{
 
-				var anchor = Text.Anchor;
-				var wrap = Text.WordWrap;
-				Text.Anchor = TextAnchor.UpperLeft;
-				Text.WordWrap = false;
+
+
 				// clip the text
 				var defRect = new Rect(rowRect.x, rowRect.y + Utils_GUI.rowHeight, rowRect.width, Utils_GUI.rowHeight);
-				GUI.BeginGroup(defRect);
-				Widgets.Label(new Rect(0f, 0f, 10000f, Utils_GUI.rowHeight), " -Def: " + def.defName);
-				GUI.EndGroup();
+				//GUI.BeginGroup(defRect);
+				//Widgets.Label(new Rect(0f, 0f, 10000f, Utils_GUI.rowHeight), " -Def: " + def.defName);
+				//GUI.EndGroup();
+				Widgets.Label(defRect, " -Def: " + def.defName);
 				TooltipHandler.TipRegion(defRect, def.defName);
-				Text.WordWrap = wrap;
-				Text.Anchor = anchor;
+
 
 				Widgets.Label(new Rect(rowRect.x, rowRect.y + 2 * Utils_GUI.rowHeight, rowRect.width, Utils_GUI.rowHeight), " -Cat: " + def.category.ToString());
 			}
 			if (Widgets.ButtonInvisible(rowRect)) _selected = def;
+			
+			Utils_GUI.RestoreWrap(wrap);
 		}
 
 		protected override IEnumerable<ThingDef> BuildList()
