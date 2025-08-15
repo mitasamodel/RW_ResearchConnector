@@ -5,6 +5,11 @@ External references should not be included in the assembly output. Suggest a sol
 Check naming against the C# naming conventions. Prefer the official convention over the Rimworld-specific one.
 Some parts may be written using XML. Both direct definitions and Rimworld-specific patches allowed.
 
+# Harmony patches
+If any Harmony patches are required, the "Harmony 2" should be used.
+For Harmony patches prefer the attribute, which have: typeof, nameof and MethodType if applicable.
+CodeMatcher is preferable.
+
 # Mod-specific information
 This mod is a UI mod.
 Some code sections may be executed every game frame.
