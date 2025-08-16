@@ -10,9 +10,14 @@ namespace ResearchConnector
 {
 	public static class Utils_GUI
 	{
+		// RW constants
+		public const float buttonHeight = 30f;
 		public const float rowHeight = 22f;
-		public const float labelWidth = 80f;
 		public const float scrollWidth = 16f;
+		public const float windowMargin = 18f;
+
+		// My constants
+		public const float labelWidth = 80f;
 
 		public static bool SetWrap(bool set)
 		{

@@ -37,21 +37,28 @@ namespace ResearchConnector
 
 		private readonly ResearchAssignedLister assigned;
 
-		const float windowMargin = 18f;
+		const float windowMargin = Utils_GUI.windowMargin;
+
 		[TweakValue("0_MY", 0f, 50f)]
 		static float verticalGap = 20f;
+
 		[TweakValue("0_MY", 100f, 500f)]
 		static float leftColumnWidth = 300f;
+
 		[TweakValue("0_MY", 100f, 300f)]
 		static float middleColumnWidth = 200f;
+
 		[TweakValue("0_MY", 100f, 300f)]
 		static float rightColumnWidth = 200f;
-		[TweakValue("0_MY", 400f, 1200f)]
-		static float width = leftColumnWidth + middleColumnWidth + rightColumnWidth + 2 * verticalGap + 2 * windowMargin;
+
+		private readonly float width = leftColumnWidth + middleColumnWidth + rightColumnWidth + 2 * verticalGap + 2 * windowMargin;
+
 		[TweakValue("0_MY", 400f, 1000f)]
 		static float height = 500f;
+
 		[TweakValue("0_MY", 0f, 20f)]
 		static float buttonMargin = 10f;
+
 		[TweakValue("0_MY", 10f, 50f)]
 		static float buttonHeight = 10f + 2 * buttonMargin;
 
@@ -100,12 +107,14 @@ namespace ResearchConnector
 
 		float rowHeight = Utils_GUI.rowHeight;
 
+		private WindowResizerHeight resizer;
+
 		public Window_ResearchConnector()
 		{
 			//Placement and drawing order
 			layer = WindowLayer.Dialog;     //on top of all
 			draggable = true;
-			resizeable = true;
+			resizeable = false;		// Original RW resizer
 
 			doCloseX = true;            // show the X button
 			doCloseButton = false;      // no bottom "Close" button
@@ -156,10 +165,18 @@ namespace ResearchConnector
 
 			// Assigned researches
 			assigned = new ResearchAssignedLister();
+
+			resizer = new WindowResizerHeight();
 		}
 
 		public override void DoWindowContents(Rect inRect)
 		{
+			// Restore width if changed. It allows to change the height only.
+			//if (Math.Abs(windowRect.width - width) > 0.1f)
+			//	windowRect.width = width;
+
+			windowRect = resizer.DoResizeControl(windowRect, inRect);
+
 			float curY = 0f;
 
 			// Menu
@@ -173,7 +190,7 @@ namespace ResearchConnector
 			curY += rowHeight;
 
 			//Main area. Split into 3 columns
-			Rect mainAreaRect = new Rect(0f, curY, inRect.width, inRect.height - curY);
+			Rect mainAreaRect = new Rect(0f, curY, inRect.width, inRect.height - curY - WindowResizerHeight.gripThickness);
 			//Widgets.DrawBox(mainAreaRect);
 
 			Rect leftColumnRect = new Rect(0f, mainAreaRect.y, leftColumnWidth, mainAreaRect.height);
@@ -227,15 +244,6 @@ namespace ResearchConnector
 
 			return height;
 		}
-
-		//private void OnRemoveResearch(ResearchProjectDef resDef)
-		//{
-		//	if (resDef == null) return;
-		//	var def = CurrentLister.SelectedDef();
-		//	if (def == null) return;
-
-		//	def.RemoveResearchPrerequisite(resDef);
-		//}
 
 		private void OnAssignResearch(ResearchProjectDef resDef)
 		{
@@ -305,5 +313,11 @@ namespace ResearchConnector
 
 		private string Mods_GetIdByName(string modName) => Mods.FirstOrDefault(m => m.Name == modName).PackageId;
 		private string Mods_GetNameById(string modId) => Mods.FirstOrDefault(m => m.PackageId == modId).Name;
+
+		public override void PreClose()
+		{
+			base.PreClose();
+			height = windowRect.height;  // Save height for next time
+		}
 	}
 }
