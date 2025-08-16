@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="ActionsLogger.cs" />
     <Compile Include="DefExtensions.cs" />
+    <Compile Include="ExportXML.cs" />
     <Compile Include="Listers\BaseLister.cs" />
     <Compile Include="Listers\BuildingsLister.cs" />
     <Compile Include="Dialog_Selector.cs" />

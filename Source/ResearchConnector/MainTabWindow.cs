@@ -238,7 +238,7 @@ namespace ResearchConnector
 			Utils_GUI.LabelCentered(exportButtonRect, export);
 			if (Widgets.ButtonInvisible(exportButtonRect))
 			{
-				ActionLogger.ListAll();
+				ExportXML.GenerateAll();
 			}
 
 			return height;

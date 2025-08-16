@@ -15,7 +15,7 @@ namespace ResearchConnector
 	/// -1 => ResearchProjectDef will be REMOVED
 	///  0 => no net change (pair cancelled)
 	/// </summary>
-	internal static class ActionLogger
+	internal static class ActionsLogger
 	{
 		public enum ActionType
 		{
@@ -121,7 +121,7 @@ namespace ResearchConnector
 		public struct Entry
 		{
 			public string Type;
-			public string ThingDefName;      // e.g. "Steel_LongSword"
+			public string DefName;      // e.g. "Steel_LongSword"
 			public string ResearchDefName;   // e.g. "Smithing"
 			public ActionType Action;
 			public bool Legacy;              // true if this is a legacy action
@@ -137,7 +137,7 @@ namespace ResearchConnector
 				yield return new Entry
 				{
 					Type = kv.Key.type,
-					ThingDefName = kv.Key.def,
+					DefName = kv.Key.def,
 					ResearchDefName = kv.Key.research,
 					Legacy = kv.Key.legacy,
 					Action = kv.Value,
@@ -147,7 +147,7 @@ namespace ResearchConnector
 		public static void ListAll()
 		{
 #if DEBUG
-			Logger.LogNL("Export");
+			Logger.LogNL("ActionsLogger");
 			foreach (var kv in _net)
 			{
 				Logger.LogNL($"{kv.Key}[{kv.Value}]");
