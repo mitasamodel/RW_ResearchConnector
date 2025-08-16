@@ -147,6 +147,7 @@ namespace ResearchConnector
 		public static void ListAll()
 		{
 #if DEBUG
+			Logger.LogNL("Export");
 			foreach (var kv in _net)
 			{
 				Logger.LogNL($"{kv.Key}[{kv.Value}]");

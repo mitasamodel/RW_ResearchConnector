@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace ResearchConnector
 {
@@ -64,6 +65,35 @@ namespace ResearchConnector
 		public static void DrawLineVertical(float x, float y, float length, Color color)
 		{
 			Widgets.DrawBoxSolid(new Rect(x, y, 1f, length), color);
+		}
+
+		public static void DrawTextureWithHighlight(Rect rect, Texture2D texture, Color color)
+		{
+			Widgets.DrawTextureFitted(rect, texture, 1f);
+			if (Mouse.IsOver(rect))
+			{
+				GUI.color = new Color(color.r, color.g, color.b, 0.5f);
+				Widgets.DrawTextureFitted(rect, texture, 1f);
+				GUI.color = Color.white;
+			}
+		}
+
+		public static bool ButtonInvisibleDoubleClick(Rect rect, bool doMouseoverSound = true, int button = 0)
+		{
+			if (doMouseoverSound)
+			{
+				MouseoverSounds.DoRegion(rect);
+			}
+			Event ev = Event.current;
+			if (ev.type == EventType.MouseDown && ev.button == button && rect.Contains(ev.mousePosition))
+			{
+				if (ev.clickCount == 2)
+				{
+					ev.Use(); // consume the event
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 }

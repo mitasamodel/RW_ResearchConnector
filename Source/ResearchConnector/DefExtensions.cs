@@ -66,7 +66,7 @@ namespace ResearchConnector
 			bool legacy = false;
 
 			// Single legacy researchPrerequisite field
-			if ( def.GetLegacyResearchPrerequisite() == resDef)
+			if (def.GetLegacyResearchPrerequisite() == resDef)
 			{
 				def.SetLegacyResearchPrerequisite(null);
 				legacy = true;
@@ -175,6 +175,20 @@ namespace ResearchConnector
 		{
 			if (def == null || linkDef == null) return;
 			def.descriptionHyperlinks?.RemoveAll(link => link.def == linkDef);
+		}
+
+		public static bool HasResearchPrerequisite(this Def def, ResearchProjectDef resDef)
+		{
+			if (def == null || resDef == null) return false;
+
+			var legacy = def.GetLegacyResearchPrerequisite();
+			if (legacy != null && legacy == resDef)
+				return true;
+
+			var list = def.GetOrInitResearchPrerequisitesList();
+			if (list != null)
+				return list.Contains(resDef);
+			return false;
 		}
 	}
 }

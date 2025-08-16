@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 using Verse;
-using LudeonTK;
 
 namespace ResearchConnector
 {
@@ -53,7 +47,7 @@ namespace ResearchConnector
 						winRect.height = minWindowSize.y;
 					winRect.yMax = Mathf.Min(UI.screenHeight, winRect.yMax);
 
-					if (ev.type == EventType.MouseUp)
+					if (ev.type == EventType.MouseUp || ev.rawType == EventType.MouseUp || !UnityEngine.Input.GetMouseButton(0))
 						_draggingH = false;
 
 					ev.Use();   // Mark the event as used so it doesn't propagate further (no drugging the window itself)

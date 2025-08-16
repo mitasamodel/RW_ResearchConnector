@@ -30,7 +30,7 @@ namespace ResearchConnector
 			if (def == _selected)
 			{
 				rowRect.height = _selectedRowHeight;
-				Widgets.DrawBoxSolid(rowRect, new Color32(144, 97, 29, 128));
+				Widgets.DrawBoxSolid(rowRect, ResearchConnector.SelectedColor);
 			}
 
 			Widgets.DrawHighlightIfMouseover(rowRect);
@@ -52,7 +52,7 @@ namespace ResearchConnector
 				Widgets.Label(new Rect(rowRect.x, rowRect.y + 2 * Utils_GUI.rowHeight, rowRect.width, Utils_GUI.rowHeight), " -Cat: " + def.category.ToString());
 			}
 			if (Widgets.ButtonInvisible(rowRect)) _selected = def;
-			
+
 			Utils_GUI.RestoreWrap(wrap);
 		}
 

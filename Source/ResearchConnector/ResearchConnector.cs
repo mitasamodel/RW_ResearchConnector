@@ -21,8 +21,13 @@ namespace ResearchConnector
 		internal const string modName = "ResearchConnector";
 		public static readonly string logFile = Path.Combine(Application.persistentDataPath, "DevOutput", modName, "ResearchConnector.log");
 
-
-
+		public static Texture2D IconRemove = ContentFinder<Texture2D>.Get("ResearchConnector/Remove", true);
+		public static Color SelectedColor = new Color32(144, 97, 29, 128);
+		public static readonly Color SelectedButtonRed = new Color(1, 0.5f, 0.5f, 1f);
+		public static readonly Color SelectedButtonGreen = new Color(0.5f, 1f, 0.5f, 1f);
+		public const string LegacyResearchTag = "[L] Legacy. This research prerequisite is stored in the legacy XML field \"researchPrerequisite\".\n\n" +
+			"All newly added research prerequisites will be stored in the XML list \"researchPrerequisites\" instead.\n\n" +
+			"If the legacy research is removed and then the same research is added again, it will be placed in the XML list, not in the legacy field.";
 
 		// Dictionary. Key is an enum-item for selection
 		// Value is a pointer to a function, which takes 1 value as input (type: string) and returns 1 value (type: ILister)
@@ -61,7 +66,6 @@ namespace ResearchConnector
 				Directory.CreateDirectory(dir);
 			File.WriteAllText(logFile, "[ResearchConnector] Debug start\n");    //create/rewrite file
 #endif
-
 #if DEBUG
 #pragma warning disable CS0168 // Variable is declared but never used
 			int maxL1, maxL2, maxL3, maxL4;

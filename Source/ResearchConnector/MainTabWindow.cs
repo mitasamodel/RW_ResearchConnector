@@ -62,7 +62,6 @@ namespace ResearchConnector
 		[TweakValue("0_MY", 10f, 50f)]
 		static float buttonHeight = 10f + 2 * buttonMargin;
 
-
 		public override Vector2 InitialSize => new Vector2(width, height);
 
 		// Mod selection
@@ -114,7 +113,7 @@ namespace ResearchConnector
 			//Placement and drawing order
 			layer = WindowLayer.Dialog;     //on top of all
 			draggable = true;
-			resizeable = false;		// Original RW resizer
+			resizeable = false;     // Original RW resizer
 
 			doCloseX = true;            // show the X button
 			doCloseButton = false;      // no bottom "Close" button
@@ -251,8 +250,8 @@ namespace ResearchConnector
 			var def = CurrentLister.SelectedDef();
 			if (def == null) return;
 
-			def.AddResearchPrerequisite(resDef);
-
+			if (!def.HasResearchPrerequisite(resDef))
+				def.AddResearchPrerequisite(resDef);
 		}
 
 		private float DrawTypeSelector(Rect inRect)
