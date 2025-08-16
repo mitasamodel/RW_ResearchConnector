@@ -71,7 +71,7 @@ namespace ResearchConnector
 				}
 
 				// 3) Export XML
-				var defType = targetDef.GetType().Name;      // "ThingDef", "RecipeDef", ...
+				var defTypeXML = targetDef.GetType().Name;      // "ThingDef", "RecipeDef", ...
 				var defName = targetDef.defName;			// defName in XML
 				var research = researchDef.defName;			// string literal for XML
 
@@ -84,7 +84,7 @@ namespace ResearchConnector
 								doc.Root!.Add(
 									new XElement("Operation",
 										new XAttribute("Class", "PatchOperationAdd"),
-										new XElement("xpath", $"Defs/{defType}[defName=\"{defName}\"]"),
+										new XElement("xpath", $"Defs/{defTypeXML}[defName=\"{defName}\"]"),
 										new XElement("value",
 											new XElement("researchPrerequisite", research)
 										)
@@ -96,7 +96,7 @@ namespace ResearchConnector
 								doc.Root!.Add(
 									new XElement("Operation",
 										new XAttribute("Class", "PatchOperationAdd"),
-										new XElement("xpath", $"Defs/{defType}[defName=\"{defName}\"]/researchPrerequisites"),
+										new XElement("xpath", $"Defs/{defTypeXML}[defName=\"{defName}\"]/researchPrerequisites"),
 										new XElement("value",
 											new XElement("li", research)
 										)
@@ -114,7 +114,7 @@ namespace ResearchConnector
 									new XElement("Operation",
 										new XAttribute("Class", "PatchOperationRemove"),
 										new XElement("xpath",
-											$"Defs/{defType}[defName=\"{defName}\"]/researchPrerequisite[text() = \"{research}\"]")
+											$"Defs/{defTypeXML}[defName=\"{defName}\"]/researchPrerequisite[text() = \"{research}\"]")
 									)
 								);
 							}
@@ -124,7 +124,7 @@ namespace ResearchConnector
 									new XElement("Operation",
 										new XAttribute("Class", "PatchOperationRemove"),
 										new XElement("xpath",
-											$"Defs/{defType}[defName=\"{defName}\"]/researchPrerequisites/li[. = \"{research}\"]")
+											$"Defs/{defTypeXML}[defName=\"{defName}\"]/researchPrerequisites/li[. = \"{research}\"]")
 									)
 								);
 							}
