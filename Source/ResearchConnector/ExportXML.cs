@@ -73,7 +73,9 @@ namespace ResearchConnector
 				// 3) Export XML
 				var defTypeXML = targetDef.GetType().Name;      // "ThingDef", "RecipeDef", ...
 				var defName = targetDef.defName;			// defName in XML
-				var research = researchDef.defName;			// string literal for XML
+				var research = researchDef.defName;         // string literal for XML
+
+				// <researchPrerequisites Inherit="False"> required for child nodes!!!
 
 				switch (e.Action)
 				{
