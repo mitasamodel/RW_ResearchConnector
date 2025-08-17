@@ -126,7 +126,7 @@ namespace ResearchConnector
 			{
 				OmitXmlDeclaration = false,
 				Indent = true,
-				IndentChars = "  ",                 // 2 spaces (pick what you like)
+				IndentChars = "\t",
 				NewLineChars = Environment.NewLine,
 				NewLineHandling = NewLineHandling.Replace
 			};

@@ -17,9 +17,8 @@ namespace ResearchConnector
 		private static string OutputDir =>
 			Path.Combine(GenFilePaths.SaveDataFolderPath, "DevOutput", "ResearchConnector", "Export");
 
-		private const string OutputFileName = "Patch_Research.xml";
-
-		private static Dictionary<string, string> mods = new Dictionary<string, string>();
+		// Mods for LoadFolders.xml.
+		private static readonly Dictionary<string, string> mods = new Dictionary<string, string>();
 
 		// Cache for DefDatabase methods to avoid reflection overhead.
 		private static readonly Dictionary<string, MethodInfo> _defDatabaseMethods = new Dictionary<string, MethodInfo>();
@@ -42,7 +41,10 @@ namespace ResearchConnector
 				ResearchProjectDef legacy = targetDef.GetLegacyResearchPrerequisite();
 				List<ResearchProjectDef> researchDefs = targetDef.GetOrInitResearchPrerequisitesList();
 				if (legacy != null)
+				{
+					targetDef.SetLegacyResearchPrerequisite(null); // Clear legacy prerequisite to avoid duplication
 					researchDefs.Insert(0, legacy);
+				}
 				GenerateXML_DirectList(targetDef, researchDefs);
 			}
 			Generate_LoadFolders();
@@ -62,7 +64,7 @@ namespace ResearchConnector
 			{
 				velem.Add(new XElement("li",
 						new XAttribute("IfModActive", kv.Key),
-						kv.Value
+						$"ModPatches/{kv.Value}"
 					)
 				);
 			}
@@ -104,124 +106,6 @@ namespace ResearchConnector
 
 			doc.XML_SaveToFile(path);
 			Logger.LogNL($"[{_className}] Exported: {path}");
-		}
-
-		public static void GenerateAll()
-		{
-#if DEBUG
-			Logger.LogNL($"[{_className}] Generating XML for all actions.");
-#endif
-			if (!ActionsLogger.HasItems)
-			{
-				Logger.LogNL($"[{_className}] Nothing to export.");
-				return;
-			}
-
-			Directory.CreateDirectory(OutputDir);
-			var path = Path.Combine(OutputDir, OutputFileName);
-
-			var doc = new XDocument(
-				new XDeclaration("1.0", "utf-8", "yes"),
-				new XElement("Patch")
-			);
-
-			foreach (var e in ActionsLogger.EnumerateAll())
-			{
-				var researchName = e.Research.ResearchDefName;
-				var legacy = e.Research.Legacy;
-#if DEBUG
-				Logger.LogNL($"[{_className}] {e.Item.DefName}[{e.Item.DefType}] Action: {e.Action}[{researchName}]" + (legacy ? "{legacy}" : ""));
-#endif
-
-				Def targetDef = ResolveDef(e.Item.DefType, e.Item.DefName);
-				ResearchProjectDef resDef = DefDatabase<ResearchProjectDef>.GetNamed(e.Research.ResearchDefName);
-
-				if (targetDef == null || resDef == null)
-				{
-					Logger.LogNL($"[{_className}] WARNING: Cannot find Def[{e.Item.DefName}] or ResearchDef[{researchName}]. Skipping.");
-					continue;
-				}
-
-				var defTypeXML = targetDef.GetType().Name;      // "ThingDef", "RecipeDef", ...
-				var defName = targetDef.defName;
-				var research = resDef.defName;              // string literal for XML
-
-				// <researchPrerequisites Inherit="False"> required for child nodes!!!
-
-				switch (e.Action)
-				{
-					case ActionsLogger.ResearchAction.Add:
-						{
-							if (legacy)
-							{
-								doc.Root!.Add(
-									new XElement("Operation",
-										new XAttribute("Class", "PatchOperationAdd"),
-										new XElement("xpath", $"Defs/{defTypeXML}[defName=\"{defName}\"]"),
-										new XElement("value",
-											new XElement("researchPrerequisite", research)
-										)
-									)
-								);
-							}
-							else
-							{
-								doc.Root!.Add(
-									new XElement("Operation",
-										new XAttribute("Class", "PatchOperationAdd"),
-										new XElement("xpath", $"Defs/{defTypeXML}[defName=\"{defName}\"]/researchPrerequisites"),
-										new XElement("value",
-											new XElement("li", research)
-										)
-									)
-								);
-								// If parent node is missing, this won't apply. We keep it simple for now.
-							}
-							break;
-						}
-					case ActionsLogger.ResearchAction.Remove:
-						{
-							if (legacy)
-							{
-								doc.Root!.Add(
-									new XElement("Operation",
-										new XAttribute("Class", "PatchOperationRemove"),
-										new XElement("xpath",
-											$"Defs/{defTypeXML}[defName=\"{defName}\"]/researchPrerequisite[text() = \"{research}\"]")
-									)
-								);
-							}
-							else
-							{
-								doc.Root!.Add(
-									new XElement("Operation",
-										new XAttribute("Class", "PatchOperationRemove"),
-										new XElement("xpath",
-											$"Defs/{defTypeXML}[defName=\"{defName}\"]/researchPrerequisites/li[. = \"{research}\"]")
-									)
-								);
-							}
-							break;
-						}
-					case ActionsLogger.ResearchAction.None:
-					default:
-						break;
-				}
-
-				// NOTE: We’re not *using* targetDef/researchDef yet for output, but they're ready for:
-				// - Grouping files by targetDef?.modContentPack?.PackageId
-				// - Adding <MayRequire> if researchDef?.modContentPack is non-vanilla, etc.
-			}
-
-			using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read))
-			using (var sw = new StreamWriter(fs, new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false)))
-			{
-				doc.Save(sw);
-			}
-
-#if DEBUG
-			Logger.LogNL($"[{_className}] Exported: {path}");
-#endif
 		}
 
 		public static void ListRaw() => ActionsLogger.ListAll();
