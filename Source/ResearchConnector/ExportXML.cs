@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,22 +12,23 @@ namespace ResearchConnector
 {
 	public class ExportXML
 	{
+		private const string _className = nameof(ExportXML);
 		private static string OutputDir =>
 			Path.Combine(GenFilePaths.SaveDataFolderPath, "DevOutput", "ResearchConnector", "Export");
 
 		private const string OutputFileName = "Patch_Research.xml";
 
-		// Chache for DefDatabase methods to avoid reflection overhead.
+		// Cache for DefDatabase methods to avoid reflection overhead.
 		private static readonly Dictionary<string, MethodInfo> _defDatabaseMethods = new Dictionary<string, MethodInfo>();
 
 		public static void GenerateAll()
 		{
 #if DEBUG
-			Logger.LogNL("[ExportXML] Generating XML for all actions.");
+			Logger.LogNL($"[{_className}] Generating XML for all actions (NewActionsLogger).");
 #endif
 			if (!ActionsLogger.HasItems)
 			{
-				Logger.LogNL("[ExportXML] Nothing to export.");
+				Logger.LogNL($"[{_className}] Nothing to export.");
 				return;
 			}
 
@@ -40,48 +42,57 @@ namespace ResearchConnector
 
 			foreach (var e in ActionsLogger.Enumerate())
 			{
+				// e.Item is DefKey, e.Research is ResearchKey
+				var defTypeName = e.Item.DefType;       // e.g. "Verse.ThingDef"
+														//var defName = e.Item.DefName;           // e.g. "Bed"
+				var researchName = e.Research.ResearchDefName; // e.g. "Smithing"
+				var legacy = e.Research.Legacy;
+
+#if DEBUG
+				Logger.LogNL($"[{_className}] {e.Item.DefName}[{e.Item.DefType}] Action: {e.Action}[{researchName}]" + (legacy ? "{legacy}" : ""));
+#endif
+
 				// Resolve the method to get the Def by name.
-				if (!_defDatabaseMethods.TryGetValue(e.Type, out var method))
+				if (!_defDatabaseMethods.TryGetValue(defTypeName, out var method))
 				{
 					// 1) Resolve def type (e.g., string "Verse.ThingDef" -> typeof(Verse.ThingDef))
-					var defType = AccessTools.TypeByName(e.Type);
+					var defType = AccessTools.TypeByName(defTypeName);
 					if (defType == null)
 					{
-						Logger.LogNL($"[ExportXML] WARNING: Cannot resolve type '{e.Type}'. Def[{e.DefName}]");
-						Verse.Log.Error($"[{ResearchConnector.modName}: ExportXML] WARNING: Cannot resolve type '{e.Type}'. Def[{e.DefName}]");
+						Logger.LogNL($"[{_className}] WARNING: Cannot resolve type '{defTypeName}'. Def[{e.Item.DefName}]");
+						Verse.Log.Error($"[{ResearchConnector.modName}: {_className}] WARNING: Cannot resolve type '{defTypeName}'. Def[{e.Item.DefName}]");
 						continue;
 					}
-#if DEBUG
-					else
-						Logger.LogNL($"{e.DefName}[{defType.Name}] Action: {e.Action}[{e.ResearchDefName}]" + (e.Legacy ? "{legacy}" : ""));
-#endif
 					// 2) Get the method to get the Def by name (e.g., "GetNamed" for ThingDef, RecipeDef, etc.)
-					method = GetMethodToGetDefByName(defType, e.DefName);
-					_defDatabaseMethods[e.Type] = method;
+					method = GetMethodToGetDefByName(defType, e.Item.DefName);
+					_defDatabaseMethods[defTypeName] = method;
+#if DEBUG
+					Logger.LogNL($"[{_className}] New DB method[{method}] for type[{defType.Name}]");
+#endif
 				}
 
 				// If we have the method, invoke it to get the Def.
-				var targetDef = method?.Invoke(null, new object[] { e.DefName, true }) as Def;
-				var researchDef = DefDatabase<ResearchProjectDef>.GetNamed(e.ResearchDefName);
+				var targetDef = method?.Invoke(null, new object[] { e.Item.DefName, true }) as Def;
+				var researchDef = DefDatabase<ResearchProjectDef>.GetNamed(researchName);
 
 				if (targetDef == null || researchDef == null)
 				{
-					Logger.LogNL($"[ExportXML] WARNING: Cannot find Def[{e.DefName}] or ResearchDef[{e.ResearchDefName}]. Skipping.");
+					Logger.LogNL($"[{_className}] WARNING: Cannot find Def[{e.Item.DefName}] or ResearchDef[{researchName}]. Skipping.");
 					continue;
 				}
 
 				// 3) Export XML
 				var defTypeXML = targetDef.GetType().Name;      // "ThingDef", "RecipeDef", ...
-				var defName = targetDef.defName;			// defName in XML
-				var research = researchDef.defName;         // string literal for XML
+				var defName = targetDef.defName;
+				var research = researchDef.defName;              // string literal for XML
 
 				// <researchPrerequisites Inherit="False"> required for child nodes!!!
 
 				switch (e.Action)
 				{
-					case ActionsLogger.ActionType.Add:
+					case ActionsLogger.ResearchAction.Add:
 						{
-							if (e.Legacy)
+							if (legacy)
 							{
 								doc.Root!.Add(
 									new XElement("Operation",
@@ -108,9 +119,9 @@ namespace ResearchConnector
 							}
 							break;
 						}
-					case ActionsLogger.ActionType.Remove:
+					case ActionsLogger.ResearchAction.Remove:
 						{
-							if (e.Legacy)
+							if (legacy)
 							{
 								doc.Root!.Add(
 									new XElement("Operation",
@@ -132,6 +143,9 @@ namespace ResearchConnector
 							}
 							break;
 						}
+					case ActionsLogger.ResearchAction.None:
+					default:
+						break;
 				}
 
 				// NOTE: We’re not *using* targetDef/researchDef yet for output, but they're ready for:
@@ -146,7 +160,7 @@ namespace ResearchConnector
 			}
 
 #if DEBUG
-			Logger.LogNL($"[ExportXML] Exported: {path}");
+			Logger.LogNL($"[{_className}] Exported: {path}");
 #endif
 		}
 
@@ -154,12 +168,6 @@ namespace ResearchConnector
 
 		// --- Helpers ----------------------------------------------------------
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="defType"></param>
-		/// <param name="defName"></param>
-		/// <returns></returns>
 		private static MethodInfo GetMethodToGetDefByName(Type defType, string defName)
 		{
 			if (defType == null || string.IsNullOrEmpty(defName)) return null;
@@ -178,8 +186,8 @@ namespace ResearchConnector
 				return method;
 			}
 
-			Logger.LogNL($"[ExportXML] WARNING: Could not reflect GetNamed on DefDatabase<{defType.Name}>.");
-			Verse.Log.Error($"[{ResearchConnector.modName}: ExportXML] WARNING: Could not reflect GetNamed on DefDatabase<{defType.Name}>.");
+			Logger.LogNL($"[{_className}] WARNING: Could not reflect GetNamed on DefDatabase<{defType.Name}>.");
+			Verse.Log.Error($"[{ResearchConnector.modName}: {_className}] WARNING: Could not reflect GetNamed on DefDatabase<{defType.Name}>.");
 			return null;
 		}
 	}

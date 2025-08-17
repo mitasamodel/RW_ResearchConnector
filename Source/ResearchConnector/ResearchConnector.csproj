@@ -62,16 +62,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionsLogger.cs" />
     <Compile Include="DefExtensions.cs" />
-    <Compile Include="ExportXML.cs" />
     <Compile Include="Listers\BaseLister.cs" />
     <Compile Include="Listers\BuildingsLister.cs" />
     <Compile Include="Dialog_Selector.cs" />
     <Compile Include="Listers\RecipesLister.cs" />
     <Compile Include="Listers\ResearchAssignedLister.cs" />
     <Compile Include="Logger.cs" />
-    <Compile Include="NewActionsLogger.cs" />
+    <Compile Include="ActionsLogger.cs" />
+    <Compile Include="ExportXML.cs" />
     <Compile Include="ResearchCacheInvalidate.cs" />
     <Compile Include="Listers\ResearchToAssignLister.cs" />
     <Compile Include="Utils_GUI.cs" />

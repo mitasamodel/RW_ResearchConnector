@@ -1,158 +1,176 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Verse;
-using Verse.Noise;
 
 namespace ResearchConnector
 {
-	/// <summary>
-	/// Net-effect of user actions per (ThingDef, ResearchProjectDef).
-	/// +1 => ResearchProjectDef will be ADDED
-	/// -1 => ResearchProjectDef will be REMOVED
-	///  0 => no net change (pair cancelled)
-	/// </summary>
-	internal static class ActionsLogger
+	public class ActionsLogger
 	{
-		public enum ActionType
+		//================== Suggested model
+
+		// Key for Defs: "Verse.ThingDef::Bed"
+		public readonly struct DefKey : IEquatable<DefKey>
 		{
+			public readonly string DefType; // e.g., "Verse.ThingDef", "Verse.RecipeDef"
+			public readonly string DefName; // e.g., "Bed"
+
+			public DefKey(Def def)
+				: this(def.GetType().FullName, def.defName) { }
+			public DefKey(string defType, string defName)
+			{
+				DefType = defType ?? "";
+				DefName = defName ?? "";
+			}
+
+			public bool Equals(DefKey other) =>
+				string.Equals(DefType, other.DefType, StringComparison.Ordinal) &&
+				string.Equals(DefName, other.DefName, StringComparison.Ordinal);
+
+			public override bool Equals(object obj) => obj is DefKey dk && Equals(dk);
+
+			public override int GetHashCode()
+				=> (DefType, DefName).GetHashCode(); // .NET Framework 4.8
+
+			public override string ToString() => $"{DefType}::{DefName}";
+		}
+
+		// Key for Research: "ResearchDefName" or "ResearchDefName#legacy"
+		public readonly struct ResearchKey : IEquatable<ResearchKey>
+		{
+			public readonly string ResearchDefName;
+			public readonly bool Legacy;
+
+			public ResearchKey(ResearchProjectDef researchDef, bool legacy = false)
+				: this(researchDef?.defName, legacy) { }
+			public ResearchKey(string researchDefName, bool legacy = false)
+			{
+				ResearchDefName = researchDefName ?? "";
+				Legacy = legacy;
+			}
+
+			public bool Equals(ResearchKey other) =>
+				Legacy == other.Legacy &&
+				string.Equals(ResearchDefName, other.ResearchDefName, StringComparison.Ordinal);
+
+			public override bool Equals(object obj) => obj is ResearchKey rk && Equals(rk);
+
+			public override int GetHashCode()
+				=> (ResearchDefName, Legacy).GetHashCode();
+
+			public override string ToString() => Legacy ? $"{ResearchDefName}#legacy" : ResearchDefName;
+		}
+
+		// Action
+		public enum ResearchAction
+		{
+			None,
 			Add,
 			Remove,
 		}
-		//private static readonly string _className = nameof(ActionLogger);
 
-		// Key is (thingDefName, researchDefName)
-		private readonly struct Key : IEquatable<Key>
+		//================= The store
+
+		// Top-level: one bucket per (DefType::DefName)
+		private static readonly Dictionary<DefKey, Dictionary<ResearchKey, ResearchAction>> _actionsLog
+			= new Dictionary<DefKey, Dictionary<ResearchKey, ResearchAction>>();
+
+		// Always create inner maps with Ordinal
+		private static Dictionary<ResearchKey, ResearchAction> NewInner()
+			=> new Dictionary<ResearchKey, ResearchAction>();
+
+		// Get or create Dict
+		private static Dictionary<ResearchKey, ResearchAction> GetOrCreate(DefKey key)
 		{
-			public readonly string type;
-			public readonly string def;
-			public readonly string research;
-			public readonly bool legacy;
-
-			public Key(string type, string def, string research, bool legacy)
+			if (!_actionsLog.TryGetValue(key, out var dict))
 			{
-				this.type = type ?? "";
-				this.def = def ?? "";
-				this.research = research ?? "";
-				this.legacy = legacy;
+				dict = NewInner();      // Create new inner Dictionary
+				_actionsLog[key] = dict;
 			}
-
-			public bool Equals(Key other) =>
-				type == other.type &&
-				def == other.def &&
-				research == other.research &&
-				legacy == other.legacy;
-			public override bool Equals(object obj) => obj is Key k && Equals(k);
-			// Magical for me Method to generate hash code. Suggested by chatGPT
-			// More reading required. https://ericlippert.com/2011/02/28/guidelines-and-rules-for-gethashcode/
-			public override int GetHashCode()
-			{
-				unchecked
-				{
-					int h = 17;
-					h = h * 31 + (type?.GetHashCode() ?? 0);
-					h = h * 31 + (def?.GetHashCode() ?? 0);
-					h = h * 31 + (research?.GetHashCode() ?? 0);
-					h = h * 31 + legacy.GetHashCode();
-					return h;
-				}
-			}
-			public override string ToString() => $"{type}::{def}::{research}::" + (legacy ? "{legacy}" : "");
+			return dict;
 		}
 
-		// Keep action list in a dictionary.
-		private static readonly Dictionary<Key, ActionType> _net = new Dictionary<Key, ActionType>();
+		private static ResearchKey RK(ResearchProjectDef researchDef, bool legacy = false)
+			=> new ResearchKey(researchDef, legacy);
+		private static ResearchKey RK(string researchDefName, bool legacy = false)
+			=> new ResearchKey(researchDefName, legacy);
 
-		public static void Clear() => _net.Clear();
 
-		public static void Add(Def def, ResearchProjectDef research, bool legacy = false)
+		//================= Logging API
+
+		public static void Add(Def itemDef, ResearchProjectDef resDef, bool legacy = false)
 		{
-			if (def == null || research == null) return;
+			// Inner dict - dict per itemDef
+			var perItemDict = GetOrCreate(new DefKey(itemDef)); // Get or create inner Dictionary
 
-			// Normal key
-			var k1 = new Key(def.GetType().FullName, def.defName, research.defName, legacy);
-			// Legacy-reversed key
-			//var k2 = new Key(def.GetType().FullName, def.defName, research.defName, !legacy);
+			// ResearchKey for the action
+			var rkey = RK(resDef, legacy);
 
-			if (_net.TryGetValue(k1, out var cur))
-			{
-				if (cur == ActionType.Remove)
-				{
-					_net.Remove(k1);    // cancels out
-				}
-				else
-				{
-					_net[k1] = ActionType.Add;      // keep the same
-				}
-			}
+			// Reduce: pass "old" value if exists, or "default" (first from struct -> "None") if not. Compare with new velue.
+			var action = Reduce(perItemDict.TryGetValue(rkey, out var old) ? old : default, ResearchAction.Add);
+
+			// If action is None, remove the entry from the dictionary (cancelled out)
+			if (action == ResearchAction.None)
+				perItemDict.Remove(rkey);
 			else
-			{
-				_net[k1] = ActionType.Add;
-			}
+				perItemDict[rkey] = action;
 		}
 
-		public static void Remove(Def def, ResearchProjectDef research, bool legacy = false)
+		public static void Remove(Def itemDef, ResearchProjectDef resDef, bool legacy = false)
 		{
-			//#if DEBUG
-			//			Utils.Log($"[{_className}] Remove [{research?.defName}] from [{thing?.defName}]: ");
-			//#endif
-			if (def == null || research == null) return;
-			var k = new Key(def.GetType().FullName, def.defName, research.defName, legacy);
-
-			if (_net.TryGetValue(k, out var cur))
-			{
-				if (cur == ActionType.Add)
-				{
-					_net.Remove(k);
-				}
-				else
-				{
-					_net[k] = ActionType.Remove;
-				}
-			}
+			var perItemDict = GetOrCreate(new DefKey(itemDef));
+			var rkey = RK(resDef, legacy);
+			var action = Reduce(perItemDict.TryGetValue(rkey, out var old) ? old : default, ResearchAction.Remove);
+			if (action != ResearchAction.None)
+				perItemDict[rkey] = action;
 			else
-			{
-				_net[k] = ActionType.Remove;
-			}
-		}
-		public struct Entry
-		{
-			public string Type;
-			public string DefName;      // e.g. "Steel_LongSword"
-			public string ResearchDefName;   // e.g. "Smithing"
-			public ActionType Action;
-			public bool Legacy;              // true if this is a legacy action
+				perItemDict.Remove(rkey);
 		}
 
-		/// <summary>True if anything still needs exporting.</summary>
-		public static bool HasItems => _net.Count > 0;
-
-		/// <summary>Enumerate net actions to be turned into PatchOperations.</summary>
-		public static IEnumerable<Entry> Enumerate()
+		private static ResearchAction Reduce(ResearchAction prev, ResearchAction next)
 		{
-			foreach (var kv in _net)
-				yield return new Entry
-				{
-					Type = kv.Key.type,
-					DefName = kv.Key.def,
-					ResearchDefName = kv.Key.research,
-					Legacy = kv.Key.legacy,
-					Action = kv.Value,
-				};
+			if (prev == ResearchAction.Add && next == ResearchAction.Remove)
+				return ResearchAction.None;
+
+			if (prev == ResearchAction.Remove && next == ResearchAction.Add)
+				return ResearchAction.None;
+
+			if (prev == next)
+				return prev;
+
+			return next;
 		}
+
+		public static IEnumerable<(DefKey Item, ResearchKey Research, ResearchAction Action)> Enumerate()
+		{
+			foreach (var item in _actionsLog)
+				foreach (var kv in item.Value)
+					yield return (item.Key, kv.Key, kv.Value);
+		}
+		public static IEnumerable<(ResearchKey Research, ResearchAction Action)> GetFor(Def def)
+		{
+			var key = new DefKey(def);
+			if (_actionsLog.TryGetValue(key, out var perItem))
+				foreach (var kv in perItem)
+					yield return (kv.Key, kv.Value);
+		}
+		public static void Clear() => _actionsLog.Clear();
 
 		public static void ListAll()
 		{
-#if DEBUG
-			Logger.LogNL("ActionsLogger");
-			foreach (var kv in _net)
+			foreach ( var action in _actionsLog)
 			{
-				Logger.LogNL($"{kv.Key}[{kv.Value}]");
+				var itemKey = action.Key;
+				foreach (var kv in action.Value)
+				{
+					var researchKey = kv.Key;
+					var actionType = kv.Value;
+					Logger.LogNL($"Item[{itemKey}] Research[{researchKey}] Action[{actionType}]");
+				}
 			}
-#endif
 		}
+		public static bool HasItems => _actionsLog.Count > 0;
 	}
 }

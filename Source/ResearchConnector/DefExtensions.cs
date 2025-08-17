@@ -47,6 +47,7 @@ namespace ResearchConnector
 				def.AddDescriptionHyperlink(resDef);
 				resDef.AddDescriptionHyperlink(def);
 				ResearchCacheInvalidate.InvalidateProject(resDef);
+				//ActionsLogger.Add(def, resDef, legacy);
 				ActionsLogger.Add(def, resDef, legacy);
 			}
 
@@ -84,6 +85,7 @@ namespace ResearchConnector
 				def.RemoveDescriptionHyperlink(resDef);
 				resDef.RemoveDescriptionHyperlink(def);
 				ResearchCacheInvalidate.InvalidateProject(resDef);
+				//ActionsLogger.Remove(def, resDef, legacy);
 				ActionsLogger.Remove(def, resDef, legacy);
 			}
 
