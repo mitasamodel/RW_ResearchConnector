@@ -239,7 +239,7 @@ namespace ResearchConnector
 			if (Widgets.ButtonInvisible(exportButtonRect))
 			{
 				//ExportXML.GenerateAll();
-				ExportXML.GenerateAll();
+				ExportXML.Do();
 			}
 
 			return height;

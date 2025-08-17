@@ -142,8 +142,12 @@ namespace ResearchConnector
 
 			return next;
 		}
-
-		public static IEnumerable<(DefKey Item, ResearchKey Research, ResearchAction Action)> Enumerate()
+		public static IEnumerable<(DefKey Item, Dictionary<ResearchKey, ResearchAction> Actions)> EnumerateDefs()
+		{
+			foreach (var item in _actionsLog)
+				yield return (item.Key, item.Value);
+		}
+		public static IEnumerable<(DefKey Item, ResearchKey Research, ResearchAction Action)> EnumerateAll()
 		{
 			foreach (var item in _actionsLog)
 				foreach (var kv in item.Value)

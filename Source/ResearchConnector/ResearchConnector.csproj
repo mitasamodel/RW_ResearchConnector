@@ -84,6 +84,7 @@
     <Compile Include="Utils_Data.cs" />
     <Compile Include="Utils_Research.cs" />
     <Compile Include="WindowResizerHeight.cs" />
+    <Compile Include="XMLExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

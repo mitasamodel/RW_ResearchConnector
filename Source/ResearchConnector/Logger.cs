@@ -31,5 +31,13 @@ namespace ResearchConnector
 			Log(str + "\n");
 #endif
 		}
+
+		public static void LogError(string className, string str)
+		{
+#if DEBUG
+			LogNL($"[{className}] " + str);
+#endif
+			Verse.Log.Error($"[{ResearchConnector.modName}: {className}] " + str);
+		}
 	}
 }
