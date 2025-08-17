@@ -164,14 +164,14 @@ namespace ResearchConnector
 		{
 			if (defType == null || string.IsNullOrEmpty(defName)) return null;
 
-			// defType is typeof(ThingDef), typeof(RecipeDef), etc.
+			// defType is typeof(Verse.ThingDef), typeof(Verse.RecipeDef), etc.
 			var dbType = typeof(DefDatabase<>).MakeGenericType(defType);
 
 			// Now dbType is DefDatabase<ThingDef>, DefDatabase<RecipeDef>, etc.
 			// We cannot use it as Database directly, but we can use reflection to get and invoke methods.
 
 			// Get the method GetNamed to call it later.
-			var method = dbType.GetMethod("GetNamed", BindingFlags.Public | BindingFlags.Static);
+			var method = dbType.GetMethod("GetNamed", BindingFlags.Public | BindingFlags.Static);   // Public static method
 
 			if (method != null)
 			{
