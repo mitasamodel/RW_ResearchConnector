@@ -30,7 +30,7 @@ namespace ResearchConnector
 			}
 			Widgets.DrawHighlightIfMouseover(rowRect);
 			Widgets.Label(rowRect, def.label);
-			if (Widgets.ButtonInvisible(rowRect)) _selected = def;
+			//if (Widgets.ButtonInvisible(rowRect)) _selected = def;
 		}
 
 		protected override float GetRowHeight(ThingDef def)

@@ -26,7 +26,13 @@ namespace ResearchConnector
 					new XAttribute("Class", "PatchOperationAdd"),
 					new XElement("xpath", $"{defPath}/researchPrerequisites"),
 					new XElement("value",
-						researchDefs.Select(r => new XElement("li", r.defName))
+						researchDefs.Select(r =>
+						{
+							var li = new XElement("li", r.defName);
+							if (r.modContentPack != null && r.modContentPack.Name != "Core")
+								li.Add(new XAttribute("MayRequire", r.modContentPack.PackageId));
+							return li;
+						})
 					)
 				)
 			);
@@ -38,15 +44,13 @@ namespace ResearchConnector
 		/// <param name="doc"></param>
 		/// <param name="defType"></param>
 		/// <param name="defName"></param>
-		public static void XMLDoc_ClearPrerequisites(this XDocument doc, string defPath)
+		public static void XMLDoc_ClearLegacyPrerequisite(this XDocument doc, string defPath)
 		{
 			doc.XMLDoc_StartIfNeeded();
 			doc.Root!.Add(
-				new XElement("Operation",
-					new XAttribute("Class", "PatchOperationConditional"),
+				new XElement("Operation", new XAttribute("Class", "PatchOperationConditional"),
 					new XElement("xpath", $"{defPath}/researchPrerequisite"),
-					new XElement("match",
-						new XAttribute("Class", "PatchOperationReplace"),
+					new XElement("match", new XAttribute("Class", "PatchOperationReplace"),
 						new XElement("xpath", $"{defPath}/researchPrerequisite"),
 						new XElement("value",
 							new XElement("researchPrerequisite", new XAttribute("Inherit", "False"))
@@ -54,19 +58,41 @@ namespace ResearchConnector
 					)
 				)
 			);
+		}
+		public static void XMLDoc_SetLegacyPrerequisite(this XDocument doc, string defPath, ResearchProjectDef researchDef)
+		{
+			doc.XMLDoc_StartIfNeeded();
 			doc.Root!.Add(
-				new XElement("Operation",
-					new XAttribute("Class", "PatchOperationConditional"),
+				new XElement("Operation", new XAttribute("Class", "PatchOperationConditional"),
+					new XElement("xpath", $"{defPath}/researchPrerequisite"),
+					new XElement("match", new XAttribute("Class", "PatchOperationReplace"),
+						new XElement("xpath", $"{defPath}/researchPrerequisite"),
+						new XElement("value",
+							new XElement("researchPrerequisite", researchDef.defName, new XAttribute("Inherit", "False"))
+						)
+					),
+					new XElement("nomatch",
+						new XAttribute("Class", "PatchOperationAdd"),
+						new XElement("xpath", $"{defPath}"),
+						new XElement("value",
+							new XElement("researchPrerequisite", researchDef.defName, new XAttribute("Inherit", "False")))
+					)
+				)
+			);
+		}
+		public static void XMLDoc_ClearPrerequisitesList(this XDocument doc, string defPath)
+		{
+			doc.XMLDoc_StartIfNeeded();
+			doc.Root!.Add(
+				new XElement("Operation", new XAttribute("Class", "PatchOperationConditional"),
 					new XElement("xpath", $"{defPath}/researchPrerequisites"),
-					new XElement("match",
-						new XAttribute("Class", "PatchOperationReplace"),
+					new XElement("match", new XAttribute("Class", "PatchOperationReplace"),
 						new XElement("xpath", $"{defPath}/researchPrerequisites"),
 						new XElement("value",
 							new XElement("researchPrerequisites", new XAttribute("Inherit", "False"))
 						)
 					),
-					new XElement("nomatch",
-						new XAttribute("Class", "PatchOperationAdd"),
+					new XElement("nomatch", new XAttribute("Class", "PatchOperationAdd"),
 						new XElement("xpath", $"{defPath}"),
 						new XElement("value",
 							new XElement("researchPrerequisites", new XAttribute("Inherit", "False")))

@@ -6,6 +6,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Xml.Linq;
 using Verse;
 
@@ -31,6 +32,7 @@ namespace ResearchConnector
 			foreach (var (defKey, actions) in ActionsLogger.EnumerateDefs())
 			{
 				Logger.LogNL($"[{_className}] Def: {defKey.DefName}[{defKey.DefType}]");
+				// Resolve Def by strings: type and name.
 				Def targetDef = ResolveDef(defKey.DefType, defKey.DefName);
 				if (targetDef == null)
 				{
@@ -38,14 +40,38 @@ namespace ResearchConnector
 					continue;
 				}
 
+				var mod = (name: targetDef.modContentPack?.Name ?? "0_Unknown", id: targetDef.modContentPack?.PackageId ?? "unknown");
+				mods[mod.id] = mod.name;
+
 				ResearchProjectDef legacy = targetDef.GetLegacyResearchPrerequisite();
 				List<ResearchProjectDef> researchDefs = targetDef.GetOrInitResearchPrerequisitesList();
-				if (legacy != null)
-				{
-					targetDef.SetLegacyResearchPrerequisite(null); // Clear legacy prerequisite to avoid duplication
-					researchDefs.Insert(0, legacy);
-				}
-				GenerateXML_DirectList(targetDef, researchDefs);
+
+				// DevOutput/ResearchConnector/Export/ModPatches/Core/Patches/Core
+				string outputPath = Path.Combine(OutputDir, "ModPatches", mod.name, "Patches", mod.name);
+				Directory.CreateDirectory(outputPath);
+				string fileName = $"ResearchPatch_{targetDef.GetType().Name}.{targetDef.defName}.xml";
+				var path = Path.Combine(outputPath, fileName);
+
+				var doc = new XDocument();
+				string defPath = $"Defs/{targetDef.GetType().Name}[defName=\"{targetDef.defName}\"]";
+				doc.XMLDoc_StartIfNeeded();
+				if (targetDef.GetLegacyResearchPrerequisite() == null)
+					doc.XMLDoc_ClearLegacyPrerequisite(defPath);
+				else
+					doc.XMLDoc_SetLegacyPrerequisite(defPath, legacy);
+				doc.XMLDoc_ClearPrerequisitesList(defPath);
+				if (researchDefs.Count > 0)
+					doc.XMLDoc_AddResearchPrerequisites(defPath, researchDefs);
+
+				doc.XML_SaveToFile(path);
+				Logger.LogNL($"[{_className}] Exported: {path}");
+
+				//if (legacy != null)
+				//{
+				//	targetDef.SetLegacyResearchPrerequisite(null); // Clear legacy prerequisite to avoid duplication
+				//	researchDefs.Insert(0, legacy);
+				//}
+				//GenerateXML_DirectList(targetDef, researchDefs);
 			}
 			Generate_LoadFolders();
 		}
@@ -100,7 +126,9 @@ namespace ResearchConnector
 			var doc = new XDocument();
 			string defPath = $"Defs/{def.GetType().Name}[defName=\"{def.defName}\"]";
 			doc.XMLDoc_StartIfNeeded();
-			doc.XMLDoc_ClearPrerequisites(defPath);
+			if (def.GetLegacyResearchPrerequisite() == null)
+				doc.XMLDoc_ClearLegacyPrerequisite(defPath);
+			doc.XMLDoc_ClearPrerequisitesList(defPath);
 			if (researchDefs.Count > 0)
 				doc.XMLDoc_AddResearchPrerequisites(defPath, researchDefs);
 

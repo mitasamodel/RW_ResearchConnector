@@ -25,12 +25,9 @@ namespace ResearchConnector
 		public static Color SelectedColor = new Color32(144, 97, 29, 128);
 		public static readonly Color SelectedButtonRed = new Color(1, 0.5f, 0.5f, 1f);
 		public static readonly Color SelectedButtonGreen = new Color(0.5f, 1f, 0.5f, 1f);
-		//public const string LegacyResearchTag = "[L] Legacy. This research prerequisite is stored in the legacy XML field \"researchPrerequisite\".\n\n" +
-		//	"All newly added research prerequisites will be stored in the XML list \"researchPrerequisites\" instead.\n\n" +
-		//	"If the legacy research is removed and then the same research is added again, it will be placed in the XML list, not in the legacy field.";
-		public const string LegacyResearchTag =
-			"[L] Legacy. This research prerequisite is stored in the legacy XML field \"researchPrerequisite\".\n\n" +
-			"If any changes are made to this item, all research prerequisites will be stored in the XML list \"researchPrerequisites\" instead, including the legacy one.\n\n";
+		public const string LegacyResearchTag = "[L] Legacy. This research prerequisite is stored in the legacy XML field \"researchPrerequisite\".\n\n" +
+			"All newly added research prerequisites will be stored in the XML list \"researchPrerequisites\" instead.\n\n" +
+			"If the legacy research is removed and then the same research is added again, it will be placed in the XML list, not in the legacy field.";
 
 		// Dictionary. Key is an enum-item for selection
 		// Value is a pointer to a function, which takes 1 value as input (type: string) and returns 1 value (type: ILister)
