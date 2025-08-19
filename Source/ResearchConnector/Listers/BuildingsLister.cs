@@ -40,12 +40,13 @@ namespace ResearchConnector
 
 
 
-				// clip the text
-				var defRect = new Rect(rowRect.x, rowRect.y + Utils_GUI.rowHeight, rowRect.width, Utils_GUI.rowHeight);
-				//GUI.BeginGroup(defRect);
-				//Widgets.Label(new Rect(0f, 0f, 10000f, Utils_GUI.rowHeight), " -Def: " + def.defName);
-				//GUI.EndGroup();
-				Widgets.Label(defRect, " -Def: " + def.defName);
+				Rect infoRect = new Rect(rowRect.x + Utils_GUI.rowHeight, rowRect.y + Utils_GUI.rowHeight, Utils_GUI.rowHeight, Utils_GUI.rowHeight);
+				if (Widgets.ButtonImage(infoRect, TexButton.Info))
+				{
+					Find.WindowStack.Add(new Dialog_InfoCard(def));
+				}
+				Rect defRect = new Rect(infoRect.xMax + 4f, infoRect.y, rowRect.width - infoRect.width - 4f, Utils_GUI.rowHeight);
+				Widgets.Label(defRect, def.defName);
 				TooltipHandler.TipRegion(defRect, def.defName);
 
 
